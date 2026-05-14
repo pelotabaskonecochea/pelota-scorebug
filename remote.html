@@ -344,18 +344,31 @@
         
         // 5. Fire connection events only after DOM is ready and functions are mapped
         document.addEventListener('DOMContentLoaded', function() {
-            
+    
             ably.connection.on('connected', function() {
                 console.log("Remote controller connected to Ably.");
                 
-                // Now it is completely safe to receive data because upd() and setR are ready
-                chan.subscribe('u', function(m) { 
-                    state = m.data; 
-                    upd(); 
+                // 1. Fetch the last message sent before this refresh
+                chan.history({ limit: 1 }, function(err, page) {
+                    if (!err && page.items.length > 0) {
+                        console.log("Restoring previous state from history cache...");
+                        state = page.items[0].data; // Set local state to the saved historical data
+                        upd();                      // Update your inputs with the restored data
+                    } else {
+                        console.log("No history found, starting fresh or waiting for update.");
+                    }
+                    
+                    // 2. Now that history is handled, safely start listening for live changes
+                    chan.subscribe('u', function(m) { 
+                        state = m.data; 
+                        upd(); 
+                    });
                 });
+
             });
             
         });
+
     </script>
 </body>
 </html>
