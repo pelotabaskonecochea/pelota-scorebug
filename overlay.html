@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basque Pelota Stream Overlay</title>
+    <script src="ably.com"></script>
+    <style>
+        :root { --bg1: #111; --bg2: #1a1a1a; --text1: #fff; --text2: #aaa; --accent: #d4af37; --box: #222; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: transparent; overflow: hidden; color: #fff; }
+        #prism-overlay { position: absolute; top: 20px; left: 20px; width: 550px; display: flex; flex-direction: column; font-weight: bold; transform-origin: top left; transition: transform 0.2s ease; }
+        .row { display: flex; align-items: stretch; background: var(--bg1); color: var(--text1); overflow: hidden; }
+        #h-row { background: var(--bg2); color: var(--accent); font-size: 13px; text-transform: uppercase; padding: 6px 12px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        #t-logo { width: 45px; background: var(--bg2); border-right: 1px solid rgba(255,255,255,0.1); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .t-container { flex-grow: 1; display: flex; flex-direction: column; }
+        .t-wrap { flex-grow: 1; display: flex; align-items: center; padding: 5px 12px; height: 38px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .t-img { width: 32px; height: 32px; margin-right: 10px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .t-txt { display: flex; flex-direction: column; }
+        .t-name { font-size: 17px; }
+        .t-play { font-size: 11px; color: var(--text2); font-weight: normal; margin-top: 1px; }
+        .s-boxes { display: flex; }
+        .s-box { width: 42px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--box); border-left: 1px solid rgba(255,255,255,0.1); }
+        .m-box { background: var(--bg2); color: var(--accent); border-right: 2px solid var(--accent); }
+        #d-row { background: var(--bg2); font-size: 12px; padding: 5px 12px; display: flex; justify-content: space-between; color: var(--text2); border-top: 1px solid rgba(255,255,255,0.1); }
+        #next-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 580px; background: rgba(17,17,17,0.98); border: 3px solid var(--accent); padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); box-sizing: border-box; }
+        #next-title { font-size: 22px; color: var(--accent); text-transform: uppercase; margin-bottom: 25px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .next-team-row { margin: 20px 0; }
+        .next-team-name { font-size: 28px; font-weight: bold; color: #fff; }
+        .next-team-players { font-size: 18px; color: var(--text2); margin-top: 4px; }
+        .vs-divider { font-size: 15px; color: var(--accent); font-weight: bold; margin: 15px 0; letter-spacing: 1px; }
+        .hidden { display: none !important; }
+        #auth-fail { background: #2c3e50; position: fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-fail">⚠️ Access Unauthorized</div>
+
+    <div id="prism-overlay" class="hidden">
+        <div id="h-row" class="row"><span id="hl">FPPBA</span><span id="hr">Fecha 3</span></div>
+        <div class="row">
+            <div id="t-logo" class="hidden"></div>
+            <div class="t-container">
+                <div style="display:flex; width:100%;">
+                    <div class="t-wrap">
+                        <div id="t1l" class="t-img hidden"></div>
+                        <div class="t-txt"><span id="t1n" class="t-name">Team 1</span><span id="t1p" class="t-play">Players 1</span></div>
+                    </div>
+                    <div class="s-boxes">
+                        <div id="t1m" class="s-box m-box">0</div>
+                        <div id="t1s1" class="s-box">0</div><div id="t1s2" class="s-box">0</div><div id="t1s3" class="s-box">0</div>
+                    </div>
+                </div>
+                <div style="display:flex; width:100%;">
+                    <div class="t-wrap">
+                        <div id="t2l" class="t-img hidden"></div>
+                        <div class="t-txt"><span id="t2n" class="t-name">Team 2</span><span id="t2p" class="t-play">Players 2</span></div>
+                    </div>
+                    <div class="s-boxes">
+                        <div id="t2m" class="s-box m-box">0</div>
+                        <div id="t2s1" class="s-box">0</div><div id="t2s2" class="s-box">0</div><div id="t2s3" class="s-box">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="d-row" class="row"><span id="dl">Necochea</span><span id="dr">LIVE</span></div>
+    </div>
+
+    <div id="next-box" class="hidden">
+        <div id="next-title">Próximo Partido</div>
+        <div class="next-team-row"><div id="nx-t1n" class="next-team-name">-</div><div id="nx-t1p" class="next-team-players">-</div></div>
+        <div class="vs-divider">A CONTINUACIÓN VS</div>
+        <div class="next-team-row"><div id="nx-t2n" class="next-team-name">-</div><div id="nx-t2p" class="next-team-players">-</div></div>
+    </div>
+
+    <script>
+        var params = new URLSearchParams(window.location.search);
+        if(params.get('auth') === "7630") {
+            document.getElementById('auth-fail').style.display = "none";
+            
+            var ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
+            var chan = ably.channels.get('p-neco');
+
+            chan.subscribe('u', function(m) {
+                var state = m.data;
+                document.getElementById('prism-overlay').style.transform = 'scale(' + state.scale + ')';
+                document.getElementById('prism-overlay').classList.toggle('hidden', state.route !== 'sb');
+                document.getElementById('next-box').classList.toggle('hidden', state.route !== 'nx');
+
+                if(state.route === 'sb') {
+                    document.getElementById('hl').innerText = state.hl; document.getElementById('hr').innerText = state.hr;
+                    document.getElementById('dl').innerText = state.dl; document.getElementById('dr').innerText = state.dr;
+                    document.getElementById('t1n').innerText = state.t1n; document.getElementById('t1p').innerText = state.t1p;
+                    document.getElementById('t2n').innerText = state.t2n; document.getElementById('t2p').innerText = state.t2p;
+                    
+                    document.getElementById('t1m').innerText = state.t1m; document.getElementById('t1s1').innerText = state.t1s1;
+                    document.getElementById('t1s2').innerText = state.t1s2; document.getElementById('t1s3').innerText = state.t1s3;
+                    document.getElementById('t2m').innerText = state.t2m; document.getElementById('t2s1').innerText = state.t2s1;
+                    document.getElementById('t2s2').innerText = state.t2s2; document.getElementById('t2s3').innerText = state.t2s3;
+
+                    document.getElementById('h-row').classList.toggle('hidden', !state.vh);
+                    document.getElementById('t-logo').classList.toggle('hidden', !state.vt);
+                    document.getElementById('d-row').classList.toggle('hidden', !state.vd);
+                    document.getElementById('t1l').classList.toggle('hidden', !state.v1);
+                    document.getElementById('t2l').classList.toggle('hidden', !state.v2);
+                    
+                    document.getElementById('t1m').classList.toggle('hidden', !state.bm); document.getElementById('t2m').classList.toggle('hidden', !state.bm);
+                    document.getElementById('t1s1').classList.toggle('hidden', !state.bs1); document.getElementById('t2s1').classList.toggle('hidden', !state.bs1);
+                    document.getElementById('t1s2').classList.toggle('hidden', !state.bs2); document.getElementById('t2s2').classList.toggle('hidden', !state.bs2);
+                    document.getElementById('t1s3').classList.toggle('hidden', !state.bs3); document.getElementById('t2s3').classList.toggle('hidden', !state.bs3);
+
+                    document.getElementById('t-logo').style.backgroundImage = state.tu ? "url('" + state.tu + "')" : 'none';
+                    document.getElementById('t1l').style.backgroundImage = state.t1l ? "url('" + state.t1l + "')" : 'none';
+                    document.getElementById('t2l').style.backgroundImage = state.t2l ? "url('" + state.t2l + "')" : 'none';
+                } else if(state.route === 'nx') {
+                    document.getElementById('nx-t1n').innerText = state.nt1n || 'Por Determinar';
+                    document.getElementById('nx-t1p').innerText = state.nt1p || 'Jugadores';
+                    document.getElementById('nx-t2n').innerText = state.nt2n || 'Por Determinar';
+                    document.getElementById('nx-t2p').innerText = state.nt2p || 'Jugadores';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
