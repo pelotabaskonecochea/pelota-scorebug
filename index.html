@@ -3,367 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basque Pelota Cloud Scorebug</title>
-    <!-- Public configuration-free sync engine -->
-    <script src="jsdelivr.net"></script>
+    <title>Pelota Bug</title>
+    <script src="ably.com"></script>
     <style>
-        :root {
-            --bg-primary: #111111; --bg-secondary: #1a1a1a;
-            --text-primary: #ffffff; --text-secondary: #aaaaaa;
-            --accent-color: #d4af37; --box-bg: #222222;
-        }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; background-color: #2c3e50; color: #fff; }
-        
-        /* --- SPLASH GATE SCREEN --- */
-        #splash-screen { text-align: center; max-width: 500px; margin: 80px auto; background: #1a252f; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        #splash-screen h1 { font-size: 22px; margin-bottom: 20px; color: #3498db; }
-        
-        /* --- GRAPHIC OVERLAY LAYER --- */
-        #overlay-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; box-sizing: border-box; padding: 15px; }
-        #prism-overlay { width: 550px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: bold; position: absolute; top: 15px; left: 15px; transition: transform 0.1s ease; transform-origin: top left; }
-        .overlay-row { display: flex; align-items: stretch; background-color: var(--bg-primary); color: var(--text-primary); overflow: hidden; }
-        #header-row { background-color: var(--bg-secondary); color: var(--accent-color); font-size: 13px; text-transform: uppercase; padding: 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
-        #tournament-logo { width: 45px; background-color: var(--bg-secondary); border-right: 1px solid rgba(255,255,255,0.1); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        .teams-container { flex-grow: 1; display: flex; flex-direction: column; }
-        .team-wrapper { flex-grow: 1; display: flex; align-items: center; padding: 5px 12px; height: 38px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .team-logo { width: 32px; height: 32px; margin-right: 10px; background-size: contain; background-repeat: no-repeat; background-position: center; }
-        .team-text { display: flex; flex-direction: column; }
-        .team-name { font-size: 17px; }
-        .team-players { font-size: 11px; color: var(--text-secondary); font-weight: normal; margin-top: 1px; }
-        .score-boxes { display: flex; }
-        .score-box { width: 42px; display: flex; align-items: center; justify-content: center; font-size: 18px; background-color: var(--box-bg); border-left: 1px solid rgba(255,255,255,0.1); }
-        .match-box { background-color: var(--bg-secondary); color: var(--accent-color); border-right: 2px solid var(--accent-color); }
-        #dropline-row { background-color: var(--bg-secondary); font-size: 12px; padding: 5px 12px; display: flex; justify-content: space-between; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.1); }
-        
-        /* --- LARGE INTERSTITIAL NEXT MATCH CARD --- */
-        #next-match-big-card { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px; background-color: #111111; border: 4px solid var(--accent-color); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); z-index: 9999; display: flex; flex-direction: column; overflow: hidden; font-weight: bold; }
-        .big-card-title { background-color: var(--accent-color); color: #000; text-align: center; padding: 12px; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; }
-        .big-card-body { padding: 30px; display: flex; flex-direction: column; gap: 20px; text-align: center; }
-        .big-card-header-info { font-size: 16px; color: var(--accent-color); text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .big-card-team { display: flex; flex-direction: column; gap: 5px; }
-        .big-card-team-name { font-size: 28px; color: #ffffff; }
-        .big-card-team-players { font-size: 18px; color: var(--text-secondary); font-weight: normal; }
-        .big-card-vs { font-size: 20px; color: var(--accent-color); font-style: italic; margin: 5px 0; }
-
-        /* --- MOBILE REMOTE INTERFACE --- */
-        #remote-panel { max-width: 600px; margin: 10px auto; background: #1a252f; padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .panel-section { background: #2c3e50; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
-        h2 { margin: 0 0 10px 0; color: #3498db; font-size: 18px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
-        h3 { margin: 5px 0; font-size: 14px; color: #ecf0f1; }
-        .flex-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        input[type="text"], input[type="number"] { padding: 10px; border-radius: 4px; border: 1px solid #34495e; background: #1a252f; color: white; font-size: 14px; flex-grow: 1; min-width: 100px; }
-        .btn { background: #e74c3c; color: white; border: none; padding: 12px 18px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-block; }
+        :root { --bg1: #111; --bg2: #1a1a1a; --text1: #fff; --text2: #aaa; --accent: #d4af37; --box: #222; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 10px; background: #2c3e50; color: #fff; }
+        #launch-screen { text-align: center; padding: 50px 20px; }
+        .launch-btn { display: block; width: 280px; margin: 20px auto; padding: 20px; font-size: 18px; font-weight: bold; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; }
+        #prism-overlay { position: absolute; top: 15px; left: 15px; width: 550px; display: flex; flex-direction: column; font-weight: bold; transform-origin: top left; }
+        .row { display: flex; align-items: stretch; background: var(--bg1); color: var(--text1); overflow: hidden; }
+        #h-row { background: var(--bg2); color: var(--accent); font-size: 13px; text-transform: uppercase; padding: 6px 12px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        #t-logo { width: 45px; background: var(--bg2); border-right: 1px solid rgba(255,255,255,0.1); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .t-container { flex-grow: 1; display: flex; flex-direction: column; }
+        .t-wrap { flex-grow: 1; display: flex; align-items: center; padding: 5px 12px; height: 38px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .t-img { width: 32px; height: 32px; margin-right: 10px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .t-txt { display: flex; flex-direction: column; }
+        .t-name { font-size: 17px; }
+        .t-play { font-size: 11px; color: var(--text2); font-weight: normal; margin-top: 1px; }
+        .s-boxes { display: flex; }
+        .s-box { width: 42px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--box); border-left: 1px solid rgba(255,255,255,0.1); }
+        .m-box { background: var(--bg2); color: var(--accent); border-right: 2px solid var(--accent); }
+        #d-row { background: var(--bg2); font-size: 12px; padding: 5px 12px; display: flex; justify-content: space-between; color: var(--text2); border-top: 1px solid rgba(255,255,255,0.1); }
+        #next-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; background: rgba(17,17,17,0.95); border: 3px solid var(--accent); padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        #next-title { font-size: 20px; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .next-team-row { margin: 15px 0; }
+        .next-team-name { font-size: 26px; font-weight: bold; color: #fff; }
+        .next-team-players { font-size: 16px; color: var(--text2); margin-top: 4px; }
+        .vs-divider { font-size: 16px; color: var(--accent); font-weight: bold; margin: 10px 0; }
+        #remote-panel { max-width: 500px; margin: 0 auto; background: #1a252f; padding: 12px; border-radius: 8px; }
+        .sect { background: #2c3e50; padding: 10px; border-radius: 6px; margin-bottom: 12px; }
+        .f-row { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+        input[type="text"] { padding: 8px; border-radius: 4px; border: 1px solid #34495e; background: #1a252f; color: white; font-size: 14px; flex-grow: 1; min-width: 100px; }
+        .btn { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn.active { background: #2ecc71; }
-        .btn-blue { background: #3498db; width: 100%; font-size: 16px; margin: 10px 0; padding: 15px; text-decoration: none; text-align: center; box-sizing: border-box; }
-        
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px; }
-        .btn-group { background: #1a252f; padding: 6px; border-radius: 4px; text-align: center; }
-        .btn-group label { display: block; font-size: 10px; color: #bdc3c7; margin-bottom: 3px; font-weight: bold; }
-        .giant-up { width: 100%; height: 60px; font-size: 24px; font-weight: bold; background: #2ecc71; color: white; border: none; border-radius: 5px; }
-        .giant-down { width: 100%; height: 35px; font-size: 14px; background: #7f8c8d; color: white; border: none; border-radius: 5px; margin-top: 4px; }
-        
+        .g-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
+        .b-grp { background: #1a252f; padding: 4px; border-radius: 4px; text-align: center; }
+        .b-grp label { display: block; font-size: 9px; color: #bdc3c7; margin-bottom: 2px; font-weight: bold; }
+        .g-up { width: 100%; height: 50px; font-size: 20px; font-weight: bold; background: #2ecc71; color: white; border: none; border-radius: 4px; }
+        .g-down { width: 100%; height: 28px; font-size: 11px; background: #7f8c8d; color: white; border: none; border-radius: 4px; margin-top: 3px; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- --- SCREEN 1: SPLASH SPLIT ROAD LAUNCHER --- -->
-    <div id="splash-screen">
-        <h1>Basque Pelota Scorebug Gateway</h1>
-        <p>Select the mode for this device:</p>
-        <button class="btn btn-blue" onclick="navigateToMode('overlay')">🎥 Load PRISM Overlay Layer</button>
-        <button class="btn btn-blue" style="background:#e67e22;" onclick="navigateToMode('remote')">📱 Open Phone Remote Controller</button>
+    <div id="launch-screen">
+        <h2>Basque Pelota Scorebug Launcher</h2>
+        <button class="launch-btn" onclick="gotoMode('overlay')">Load PRISM Overlay Layer</button>
+        <button class="launch-btn" onclick="gotoMode('remote')">Load Smartphone Remote</button>
     </div>
 
-    <!-- --- SCREEN 2: LIVE BROADCAST GRAPHIC --- -->
-    <div id="overlay-wrapper" class="hidden">
-        <div id="prism-overlay">
-            <div id="header-row" class="overlay-row"><span id="h-l">FPPBA</span><span id="h-r">Fecha 3</span></div>
-            <div class="overlay-row">
-                <div id="tournament-logo" class="hidden"></div>
-                <div class="teams-container">
-                    <div style="display:flex; width:100%;">
-                        <div class="team-wrapper">
-                            <div id="t1-l" class="team-logo hidden"></div>
-                            <div class="team-text"><span id="t1-n" class="team-name">Team 1</span><span id="t1-p" class="team-players">Players 1</span></div>
-                        </div>
-                        <div class="score-boxes">
-                            <div id="t1-m" class="score-box match-box">0</div>
-                            <div id="t1-s1" class="score-box">0</div><div id="t1-s2" class="score-box">0</div><div id="t1-s3" class="score-box">0</div>
-                        </div>
+    <div id="prism-overlay" class="hidden">
+        <div id="h-row" class="row"><span id="hl">FPPBA</span><span id="hr">Fecha 3</span></div>
+        <div class="row">
+            <div id="t-logo" class="hidden"></div>
+            <div class="t-container">
+                <div style="display:flex; width:100%;">
+                    <div class="t-wrap">
+                        <div id="t1l" class="t-img hidden"></div>
+                        <div class="t-txt"><span id="t1n" class="t-name">Team 1</span><span id="t1p" class="t-play">Players 1</span></div>
                     </div>
-                    <div style="display:flex; width:100%;">
-                        <div class="team-wrapper">
-                            <div id="t2-l" class="team-logo hidden"></div>
-                            <div class="team-text"><span id="t2-n" class="team-name">Team 2</span><span id="t2-p" class="team-players">Players 2</span></div>
-                        </div>
-                        <div class="score-boxes">
-                            <div id="t2-m" class="score-box match-box">0</div>
-                            <div id="t2-s1" class="score-box">0</div><div id="t2-s2" class="score-box">0</div><div id="t2-s3" class="score-box">0</div>
-                        </div>
+                    <div class="s-boxes">
+                        <div id="t1m" class="s-box m-box">0</div>
+                        <div id="t1s1" class="s-box">0</div><div id="t1s2" class="s-box">0</div><div id="t1s3" class="s-box">0</div>
+                    </div>
+                </div>
+                <div style="display:flex; width:100%;">
+                    <div class="t-wrap">
+                        <div id="t2l" class="t-img hidden"></div>
+                        <div class="t-txt"><span id="t2n" class="t-name">Team 2</span><span id="t2p" class="t-play">Players 2</span></div>
+                    </div>
+                    <div class="s-boxes">
+                        <div id="t2m" class="s-box m-box">0</div>
+                        <div id="t2s1" class="s-box">0</div><div id="t2s2" class="s-box">0</div><div id="t2s3" class="s-box">0</div>
                     </div>
                 </div>
             </div>
-            <div id="dropline-row" class="overlay-row"><span id="d-l">Necochea</span><span id="d-r">LIVE</span></div>
         </div>
-
-        <!-- Central Big Interstitial Box -->
-        <div id="next-match-big-card" class="hidden">
-            <div class="big-card-title">Próximo Partido</div>
-            <div class="big-card-body">
-                <div id="bc-h-info" class="big-card-header-info">FPPBA - Torneo Pelota</div>
-                <div class="big-card-team">
-                    <div id="bc-t1-n" class="big-card-team-name">Basko Necochea A</div>
-                    <div id="bc-t1-p" class="big-card-team-players">Player 1 / Player 2</div>
-                </div>
-                <div class="big-card-vs">- VS -</div>
-                <div class="big-card-team">
-                    <div id="bc-t2-n" class="big-card-team-name">Club Garmense</div>
-                    <div id="bc-t2-p" class="big-card-team-players">Player 3 / Player 4</div>
-                </div>
-            </div>
-        </div>
+        <div id="d-row" class="row"><span id="dl">Necochea</span><span id="dr">LIVE</span></div>
     </div>
 
-    <!-- --- SCREEN 3: MASTER PHONE RECON INTERFACE --- -->
+    <div id="next-box" class="hidden">
+        <div id="next-title">Próximo Partido</div>
+        <div class="next-team-row"><div id="nx-t1n" class="next-team-name">-</div><div id="nx-t1p" class="next-team-players">-</div></div>
+        <div class="vs-divider">A CONTINUACIÓN VS</div>
+        <div class="next-team-row"><div id="nx-t2n" class="next-team-name">-</div><div id="nx-t2p" class="next-team-players">-</div></div>
+    </div>
+
     <div id="remote-panel" class="hidden">
-        <h2>Pelota Cloud Control Dashboard</h2>
-        
-        <!-- VISIBILITY STATES SYSTEMS -->
-        <div class="panel-section" style="background:#27ae60;">
-            <h3>Display Routing Mode</h3>
-            <div class="flex-row">
-                <button class="btn active" id="md-sb" onclick="setScreenView('scorebug')">Show Scorebug Top-Left</button>
-                <button class="btn" id="md-bc" onclick="setScreenView('bigcard')">Show Large Next Match Box</button>
-                <button class="btn" id="md-hd" onclick="setScreenView('hideall')">Hide Everything Completely</button>
+        <h2>Pelota Cloud Remote</h2>
+        <div class="sect" style="background:#27ae60;">
+            <h3>Display Router (On-Screen Mode)</h3>
+            <div class="f-row">
+                <button class="btn" id="r-sb" onclick="setRouting('sb')">Show Scorebug</button>
+                <button class="btn" id="r-nx" onclick="setRouting('nx')">Show Next Box</button>
+                <button class="btn" id="r-hd" onclick="setRouting('hd')">Hide All</button>
             </div>
-            <div class="flex-row" style="margin-top:10px; align-items:center;">
-                <label style="font-size:12px; font-weight:bold;">Broadcast Graphics Size Scaling:</label>
-                <input type="number" id="in-scale" value="1.0" step="0.1" min="0.5" max="3" oninput="pushScale(this.value)" style="max-width:80px;">
+            <button class="btn" style="background:#d35400; width:100%; margin-top:5px; font-size:13px;" onclick="promotePrepToLive()">PROMOTE PREP BOX TO LIVE (Resets Scores to 0-0)</button>
+        </div>
+        <div class="sect">
+            <h3>Scorebug Configuration</h3>
+            <div class="f-row">
+                <button class="btn" id="cb-h" onclick="togVis('vh')">Header</button>
+                <button class="btn" id="cb-tl" onclick="togVis('vt')">T-Logo</button>
+                <button class="btn" id="cb-d" onclick="togVis('vd')">Dropline</button>
+                <button class="btn" id="cb-m" onclick="togBox('m')">Match</button>
+                <button class="btn" id="cb-s1" onclick="togBox('s1')">S1</button>
+                <button class="btn" id="cb-s2" onclick="togBox('s2')">S2</button>
+                <button class="btn" id="cb-s3" onclick="togBox('s3')">S3</button>
+            </div>
+            <div class="f-row"><input type="text" id="scale" placeholder="Size Scale (e.g. 1.0)" oninput="pushScale(this.value)"></div>
+            <div class="f-row"><input type="text" id="i-hl" placeholder="Head L" oninput="pTxt('hl',this.value)"><input type="text" id="i-hr" placeholder="Head R" oninput="pTxt('hr',this.value)"></div>
+            <div class="f-row"><input type="text" id="i-dl" placeholder="Drop L" oninput="pTxt('dl',this.value)"><input type="text" id="i-dr" placeholder="Drop R" oninput="pTxt('dr',this.value)"></div>
+            <div class="f-row"><input type="text" id="i-tu" placeholder="T-Logo URL" oninput="pImg('tu',this.value)"></div>
+        </div>
+        <div class="sect" style="border-left:4px solid #2ecc71;">
+            <h3>Team 1 (Live)</h3>
+            <div class="f-row"><input type="text" id="i-t1n" oninput="pTxt('t1n',this.value)"><input type="text" id="i-t1p" oninput="pTxt('t1p',this.value)"><button class="btn" id="cb-t1l" onclick="togVis('v1')">Logo</button></div>
+            <input type="text" id="i-t1l" placeholder="Logo URL" oninput="pImg('t1l',this.value)" style="width:95%; margin-bottom:5px;">
+            <div class="g-4">
+                <div class="b-grp"><label>MATCH</label><button class="g-up" style="background:#d4af37;" onclick="pPts('t1m',1)">+</button><button class="g-down" onclick="pPts('t1m',-1)">-</button></div>
+                <div class="b-grp"><label>SET 1</label><button class="g-up" onclick="pPts('t1s1',1)">+</button><button class="g-down" onclick="pPts('t1s1',-1)">-</button></div>
+                <div class="b-grp"><label>SET 2</label><button class="g-up" onclick="pPts('t1s2',1)">+</button><button class="g-down" onclick="pPts('t1s2',-1)">-</button></div>
+                <div class="b-grp"><label>SET 3</label><button class="g-up" onclick="pPts('t1s3',1)">+</button><button class="g-down" onclick="pPts('t1s3',-1)">-</button></div>
             </div>
         </div>
-
-        <!-- DATA ACTION MATRIX PANEL -->
-        <div class="panel-section" style="border-top:4px solid #3498db;">
-            <h3>Active Live Match Data</h3>
-            <div class="flex-row">
-                <button class="btn active" id="cb-h" onclick="toggleVis('h')">Header</button>
-                <button class="btn" id="cb-tl" onclick="toggleVis('tl')">Tourn Logo</button>
-                <button class="btn active" id="cb-d" onclick="toggleVis('d')">Dropline</button>
-                <button class="btn active" id="cb-bm" onclick="toggleBoxVis('m')">Match Box</button>
-                <button class="btn active" id="cb-bs1" onclick="toggleBoxVis('s1')">S1</button>
-                <button class="btn active" id="cb-bs2" onclick="toggleBoxVis('s2')">S2</button>
-                <button class="btn active" id="cb-bs3" onclick="toggleBoxVis('s3')">S3</button>
-            </div>
-            <div class="flex-row">
-                <input type="text" id="in-hl" placeholder="Header Left" oninput="pushText('hl', this.value)">
-                <input type="text" id="in-hr" placeholder="Header Right" oninput="pushText('hr', this.value)">
-            </div>
-            <div class="flex-row">
-                <input type="text" id="in-dl" placeholder="Drop Left" oninput="pushText('dl', this.value)">
-                <input type="text" id="in-dr" placeholder="Drop Right" oninput="pushText('dr', this.value)">
-            </div>
-            <div class="flex-row">
-                <input type="text" id="in-turl" placeholder="Tournament Logo URL" oninput="pushText('turl', this.value)">
-            </div>
-
-            <!-- Live Scoring Team 1 -->
-            <div style="background:#111; padding:8px; border-radius:4px; margin-bottom:10px; border-left:4px solid #2ecc71;">
-                <div class="flex-row">
-                    <input type="text" id="in-t1n" placeholder="Team 1 Name" oninput="pushText('t1n', this.value)">
-                    <input type="text" id="in-t1p" placeholder="Team 1 Players" oninput="pushText('t1p', this.value)">
-                    <button class="btn" id="cb-t1l" onclick="toggleVis('t1l')">Logo</button>
-                </div>
-                <input type="text" id="in-t1l" placeholder="Team 1 Logo URL" oninput="pushText('t1lurl', this.value)" style="width:96%; margin-bottom:5px;">
-                <div class="grid-4">
-                    <div class="btn-group"><label>MATCH</label><button class="giant-up" style="background:#d4af37;" onclick="pushPoints('t1m',1)">+</button><button class="giant-down" onclick="pushPoints('t1m',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 1</label><button class="giant-up" onclick="pushPoints('t1s1',1)">+</button><button class="giant-down" onclick="pushPoints('t1s1',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 2</label><button class="giant-up" onclick="pushPoints('t1s2',1)">+</button><button class="giant-down" onclick="pushPoints('t1s2',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 3</label><button class="giant-up" onclick="pushPoints('t1s3',1)">+</button><button class="giant-down" onclick="pushPoints('t1s3',-1)">-</button></div>
-                </div>
-            </div>
-
-            <!-- Live Scoring Team 2 -->
-            <div style="background:#111; padding:8px; border-radius:4px; border-left:4px solid #e74c3c;">
-                <div class="flex-row">
-                    <input type="text" id="in-t2n" placeholder="Team 2 Name" oninput="pushText('t2n', this.value)">
-                    <input type="text" id="in-t2p" placeholder="Team 2 Players" oninput="pushText('t2p', this.value)">
-                    <button class="btn" id="cb-t2l" onclick="toggleVis('t2l')">Logo</button>
-                </div>
-                <input type="text" id="in-t2l" placeholder="Team 2 Logo URL" oninput="pushText('t2lurl', this.value)" style="width:96%; margin-bottom:5px;">
-                <div class="grid-4">
-                    <div class="btn-group"><label>MATCH</label><button class="giant-up" style="background:#d4af37;" onclick="pushPoints('t2m',1)">+</button><button class="giant-down" onclick="pushPoints('t2m',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 1</label><button class="giant-up" onclick="pushPoints('t2s1',1)">+</button><button class="giant-down" onclick="pushPoints('t2s1',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 2</label><button class="giant-up" onclick="pushPoints('t2s2',1)">+</button><button class="giant-down" onclick="pushPoints('t2s2',-1)">-</button></div>
-                    <div class="btn-group"><label>SET 3</label><button class="giant-up" onclick="pushPoints('t2s3',1)">+</button><button class="giant-down" onclick="pushPoints('t2s3',-1)">-</button></div>
-                </div>
+        <div class="sect" style="border-left:4px solid #e74c3c;">
+            <h3>Team 2 (Live)</h3>
+            <div class="f-row"><input type="text" id="i-t2n" oninput="pTxt('t2n',this.value)"><input type="text" id="i-t2p" oninput="pTxt('t2p',this.value)"><button class="btn" id="cb-t2l" onclick="togVis('v2')">Logo</button></div>
+            <input type="text" id="i-t2l" placeholder="Logo URL" oninput="pImg('t2l',this.value)" style="width:95%; margin-bottom:5px;">
+            <div class="g-4">
+                <div class="b-grp"><label>MATCH</label><button class="g-up" style="background:#d4af37;" onclick="pPts('t2m',1)">+</button><button class="g-down" onclick="pPts('t2m',-1)">-</button></div>
+                <div class="b-grp"><label>SET 1</label><button class="g-up" onclick="pPts('t2s1',1)">+</button><button class="g-down" onclick="pPts('t2s1',-1)">-</button></div>
+                <div class="b-grp"><label>SET 2</label><button class="g-up" onclick="pPts('t2s2',1)">+</button><button class="g-down" onclick="pPts('t2s2',-1)">-</button></div>
+                <div class="b-grp"><label>SET 3</label><button class="g-up" onclick="pPts('t2s3',1)">+</button><button class="g-down" onclick="pPts('t2s3',-1)">-</button></div>
             </div>
         </div>
-
-        <!-- STAGING NEXT MATCH PREPARATION BAR -->
-        <div class="panel-section" style="border-top:4px solid #e67e22;">
+        <div class="sect" style="border-left:4px solid #e67e22;">
             <h3 style="color:#e67e22;">Off-Screen Match Preparation Box</h3>
-            <p style="font-size:11px; color:#bdc3c7; margin:0 0 10px 0;">Fill this safely while the active game is running. Values are hidden until triggered.</p>
-            <div class="flex-row">
-                <input type="text" id="nxt-hl" placeholder="Next Header Left">
-                <input type="text" id="nxt-hr" placeholder="Next Header Right">
-            </div>
-            <div class="flex-row">
-                <input type="text" id="nxt-t1n" placeholder="Next Team 1 Name">
-                <input type="text" id="nxt-t1p" placeholder="Next Team 1 Players">
-            </div>
-            <div class="flex-row">
-                <input type="text" id="nxt-t2n" placeholder="Next Team 2 Name">
-                <input type="text" id="nxt-t2p" placeholder="Next Team 2 Players">
-            </div>
-            <button class="btn" style="background:#e67e22; width:100%; font-size:14px; margin-top:5px;" onclick="promoteStagedToLive()">🚀 Promote Prep Box to Live (0-0)</button>
+            <div class="f-row"><input type="text" id="n-hl" placeholder="Next Head L"><input type="text" id="n-hr" placeholder="Next Head R"></div>
+            <div class="f-row"><input type="text" id="n-t1n" placeholder="Next T1 Name"><input type="text" id="n-t1p" placeholder="Next T1 Players"></div>
+            <div class="f-row"><input type="text" id="n-t2n" placeholder="Next T2 Name"><input type="text" id="n-t2p" placeholder="Next T2 Players"></div>
         </div>
     </div>
 
     <script>
-        // Use standard Web LocalStorage to pass real-time event updates instantly across browser frames
+        const ably = new Ably.Realtime('xV7w7A.E6f0FA:m17H8N0oY4-P6RsnB8N7y2YvB0f_uA9zK8X4B6O3U1w');
+        const chan = ably.channels.get('p-neco');
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode') || 'launch';
+
         let state = {
-            viewMode: "scorebug", scale: 1.0,
-            hl: "FPPBA", hr: "Fecha 3", dl: "Necochea", dr: "LIVE", turl: "",
-            t1n: "Basko Neco 'A'", t1p: "LastName1 / 2", t1lurl: "", v_t1l: false,
-            t2n: "Club Garmense", t2p: "Player 3 / 4", t2lurl: "", v_t2l: false,
-            t1m: 0, t1s1: 0, t1s2: 0, t1s3: 0,
-            t2m: 0, t2s1: 0, t2s2: 0, t2s3: 0,
-            v_h: true, v_tl: false, v_d: true,
-            v_m: true, v_s1: true, v_s2: true, v_s3: true,
-            nhl: "FPPBA", nhr: "Próximo", nt1n: "Team 3", nt1p: "Player 5 / 6", nt2n: "Team 4", nt2p: "Player 7 / 8"
+            route: 'sb', scale: '1.0', hl:'FPPBA', hr:'Fecha 3', dl:'Necochea', dr:'LIVE', t1n:'Team 1', t1p:'Players 1', t2n:'Team 2', t2p:'Players 2',
+            t1m:0, t1s1:0, t1s2:0, t1s3:0, t2m:0, t2s1:0, t2s2:0, t2s3:0, vh:true, vt:false, vd:true, v1:false, v2:false, bm:true, bs1:true, bs2:true, bs3:true, tu:'', t1l:'', t2l:'',
+            nhl:'FPPBA', nhr:'Proximo', nt1n:'', nt1p:'', nt2n:'', nt2p:''
         };
 
-        const currentMode = new URLSearchParams(window.location.search).get('mode');
-
-        if (currentMode === 'overlay') {
-            document.getElementById('splash-screen').classList.add('hidden');
-            document.getElementById('overlay-wrapper').classList.remove('hidden');
-            document.body.style.backgroundColor = 'transparent';
-            window.addEventListener('storage', () => { loadAndRender(); });
-            loadAndRender();
-        } else if (currentMode === 'remote') {
-            document.getElementById('splash-screen').classList.add('hidden');
+        if(mode==='overlay'){
+            document.getElementById('launch-screen').classList.add('hidden');
+            document.getElementById('prism-overlay').classList.remove('hidden');
+            document.body.style.background='transparent';
+            chan.subscribe('u', (m)=>{ state=m.data; renderGraphic(); });
+        } else if(mode==='remote'){
+            document.getElementById('launch-screen').classList.add('hidden');
             document.getElementById('remote-panel').classList.remove('hidden');
-            pullState();
-            syncFormFields();
+            chan.subscribe('u', (m)=>{ state=m.data; syncForm(); });
         }
 
-        function navigateToMode(m) {
-            window.location.href = window.location.origin + window.location.pathname + "?mode=" + m;
-        }
-
-        function pullState() {
-            let saved = localStorage.getItem('pelota_state');
-            if (saved) { state = JSON.parse(saved); }
-        }
-
-        function pushState() {
-            localStorage.setItem('pelota_state', JSON.stringify(state));
-            syncFormFields();
-        }
-
-        function syncFormFields() {
-            if (currentMode !== 'remote') return;
-            document.getElementById('in-hl').value = state.hl; document.getElementById('in-hr').value = state.hr;
-            document.getElementById('in-dl').value = state.dl; document.getElementById('in-dr').value = state.dr;
-            document.getElementById('in-turl').value = state.turl;
-            document.getElementById('in-t1n').value = state.t1n; document.getElementById('in-t1p').value = state.t1p; document.getElementById('in-t1l').value = state.t1lurl;
-            document.getElementById('in-t2n').value = state.t2n; document.getElementById('in-t2p').value = state.t2p; document.getElementById('in-t2l').value = state.t2lurl;
-            document.getElementById('in-scale').value = state.scale;
-            
-            document.getElementById('nxt-hl').value = state.nhl; document.getElementById('nxt-hr').value = state.nhr;
-            document.getElementById('nxt-t1n').value = state.nt1n; document.getElementById('nxt-t1p').value = state.nt1p;
-            document.getElementById('nxt-t2n').value = state.nt2n; document.getElementById('nxt-t2p').value = state.nt2p;
-
-            setActiveClass('md-sb', state.viewMode === 'scorebug');
-            setActiveClass('md-bc', state.viewMode === 'bigcard');
-            setActiveClass('md-hd', state.viewMode === 'hideall');
-            
-            setActiveClass('cb-h', state.v_h); setActiveClass('cb-tl', state.v_tl); setActiveClass('cb-d', state.v_d);
-            setActiveClass('cb-bm', state.v_m); setActiveClass('cb-bs1', state.v_s1); setActiveClass('cb-bs2', state.v_s2); setActiveClass('cb-bs3', state.v_s3);
-            setActiveClass('cb-t1l', state.v_t1l); setActiveClass('cb-t2l', state.v_t2l);
-        }
-
-        function setActiveClass(id, bool) {
-            let el = document.getElementById(id);
-            if(bool) el.classList.add('active'); else el.classList.remove('active');
-        }
-
-        // --- CONTROLLER TRANSMIT ACTIONS ---
-        function pushText(field, val) { state[field] = val; pushState(); }
-        function pushPoints(field, amt) { state[field] = Math.max(0, state[field] + amt); pushState(); }
-        function toggleVis(suffix) { state['v_' + suffix] = !state['v_' + suffix]; pushState(); }
-        function toggleBoxVis(suffix) { state['v_' + suffix] = !state['v_' + suffix]; pushState(); }
-        function pushScale(val) { state.scale = parseFloat(val) || 1.0; pushState(); }
+        function gotoMode(m) { window.location.href = window.location.origin + window.location.pathname + '?mode=' + m; }
+        function psh() { chan.publish('u', state); }
         
-        function setScreenView(mode) { state.viewMode = mode; pushState(); }
-
-        function promoteStagedToLive() {
-            // Save inputs from the orange setup fields
-            state.hl = document.getElementById('nxt-hl').value; state.hr = document.getElementById('nxt-hr').value;
-            state.t1n = document.getElementById('nxt-t1n').value; state.t1p = document.getElementById('nxt-t1p').value;
-            state.t2n = document.getElementById('nxt-t2n').value; state.t2p = document.getElementById('nxt-t2p').value;
-            
-            // Re-zero the structural board parameters
-            state.t1m = 0; state.t1s1 = 0; state.t1s2 = 0; state.t1s3 = 0;
-            state.t2m = 0; state.t2s1 = 0; state.t2s2 = 0; state.t2s3 = 0;
-            
-            // Empty staging fields for your next entry loop
-            state.nhl = "FPPBA"; state.nhr = "Próximo"; state.nt1n = ""; state.nt1p = ""; state.nt2n = ""; state.nt2p = "";
-            pushState();
+        function setRouting(r) { state.route = r; syncPrepInputs(); psh(); if(mode==='remote') syncForm(); }
+        function pTxt(f,v) { state[f]=v; psh(); }
+        function pImg(f,v) { state[f]=v; state['v'+(f==='tu'?'t':f==='t1l'?'1':'2')]=true; psh(); }
+        function pPts(f,a) { state[f]=Math.max(0, state[f]+a); psh(); }
+        function pScale(v) { state.scale = v || '1.0'; psh(); }
+        function togVis(f) { state[f]=!state[f]; psh(); if(mode==='remote') syncForm(); }
+        function togBox(b) { state['b'+b]=!state['b'+b]; psh(); if(mode==='remote') syncForm(); }
+        
+        function syncPrepInputs() {
+            state.nhl = document.getElementById('n-hl').value; state.nhr = document.getElementById('n-hr').value;
+            state.nt1n = document.getElementById('n-t1n').value; state.nt1p = document.getElementById('n-t1p').value;
+            state.nt2n = document.getElementById('n-t2n').value; state.nt2p = document.getElementById('n-t2p').value;
         }
 
-        // --- GRAPHICS OVERLAY RENDER ENGINE ---
-        function loadAndRender() {
-            pullState();
+        function promotePrepToLive() {
+            syncPrepInputs();
+            state.hl = state.nhl; state.hr = state.nhr;
+            state.t1n = state.nt1n || 'Team 1'; state.t1p = state.nt1p || 'Players 1';
+            state.t2n = state.nt2n || 'Team 2'; state.t2p = state.nt2p || 'Players 2';
+            state.t1m=0; state.t1s1=0; state.t1s2=0; state.t1s3=0;
+            state.t2m=0; state.t2s1=0; state.t2s2=0; state.t2s3=0;
+            state.nhl='FPPBA'; state.nhr='Proximo'; state.nt1n=''; state.nt1p=''; state.nt2n=''; state.nt2p='';
+            state.route = 'sb';
+            psh();
+            if(mode==='remote') syncForm();
+        }
+
+        function syncForm() {
+            document.getElementById('i-hl').value=state.hl; document.getElementById('i-hr').value=state.hr;
+            document.getElementById('i-dl').value=state.dl; document.getElementById('i-dr').value=state.dr;
+            document.getElementById('i-t1n').value=state.t1n; document.getElementById('i-t1p').value=state.t1p;
+            document.getElementById('i-t2n').value=state.t2n; document.getElementById('i-t2p').value=state.t2p;
+            document.getElementById('i-tu').value=state.tu; document.getElementById('i-t1l').value=state.t1l; document.getElementById('i-t2l').value=state.t2l;
+            document.getElementById('scale').value=state.scale;
             
-            // Apply scale factor cleanly via CSS transforms
+            document.getElementById('n-hl').value=state.nhl; document.getElementById('n-hr').value=state.nhr;
+            document.getElementById('n-t1n').value=state.nt1n; document.getElementById('n-t1p').value=state.nt1p;
+            document.getElementById('n-t2n').value=state.nt2n; document.getElementById('n-t2p').value=state.nt2p;
+
+            document.getElementById('r-sb').className = 'btn' + (state.route==='sb'?' active':'');
+            document.getElementById('r-nx').className = 'btn' + (state.route==='nx'?' active':'');
+            document.getElementById('r-hd').className = 'btn' + (state.route==='hd'?' active':'');
+            
+            document.getElementById('cb-h').className = 'btn' + (state.vh?' active':'');
+            document.getElementById('cb-tl').className = 'btn' + (state.vt?' active':'');
+            document.getElementById('cb-d').className = 'btn' + (state.vd?' active':'');
+            document.getElementById('cb-t1l').className = 'btn' + (state.v1?' active':'');
+            document.getElementById('cb-t2l').className = 'btn' + (state.v2?' active':'');
+            document.getElementById('cb-m').className = 'btn' + (state.bm?' active':'');
+            document.getElementById('cb-s1').className = 'btn' + (state.bs1?' active':'');
+            document.getElementById('cb-s2').className = 'btn' + (state.bs2?' active':'');
+            document.getElementById('cb-s3').className = 'btn' + (state.bs3?' active':'');
+        }
+
+        function renderGraphic() {
             document.getElementById('prism-overlay').style.transform = `scale(${state.scale})`;
             
-            // Set basic texts 
-            document.getElementById('h-l').innerText = state.hl; document.getElementById('h-r').innerText = state.hr;
-            document.getElementById('d-l').innerText = state.dl; document.getElementById('d-r').innerText = state.dr;
-            document.getElementById('t1-n').innerText = state.t1n; document.getElementById('t1-p').innerText = state.t1p;
-            document.getElementById('t2-n').innerText = state.t2n; document.getElementById('t2-p').innerText = state.t2p;
-            
-            document.getElementById('t1-m').innerText = state.t1m; document.getElementById('t1-s1').innerText = state.t1s1;
-            document.getElementById('t1-s2').innerText = state.t1s2; document.getElementById('t1-s3').innerText = state.t1s3;
-            document.getElementById('t2-m').innerText = state.t2m; document.getElementById('t2-s1').innerText = state.t2s1;
-            document.getElementById('t2-s2').innerText = state.t2s2; document.getElementById('t2-s3').innerText = state.t2s3;
+            document.getElementById('prism-overlay').classList.toggle('hidden', state.route !== 'sb');
+            document.getElementById('next-box').classList.toggle('hidden', state.route !== 'nx');
 
-            // Handle large box display values matching the staged inputs
-            document.getElementById('bc-h-info').innerText = state.nhl + " - " + state.nhr;
-            document.getElementById('bc-t1-n').innerText = state.nt1n; document.getElementById('bc-t1-p').innerText = state.nt1p;
-            document.getElementById('bc-t2-n').innerText = state.nt2n; document.getElementById('bc-t2-p').innerText = state.nt2p;
+            if(state.route === 'sb') {
+                document.getElementById('hl').innerText=state.hl; document.getElementById('hr').innerText=state.hr;
+                document.getElementById('dl').innerText=state.dl; document.getElementById('dr').innerText=state.dr;
+                document.getElementById('t1n').innerText=state.t1n; document.getElementById('t1p').innerText=state.t1p;
+                document.getElementById('t2n').innerText=state.t2n; document.getElementById('t2p').innerText=state.t2p;
+                
+                document.getElementById('t1m').innerText=state.t1m; document.getElementById('t1s1').innerText=state.t1s1;
+                document.getElementById('t1s2').innerText=state.t1s2; document.getElementById('t1s3').innerText=state.t1s3;
+                document.getElementById('t2m').innerText=state.t2m; document.getElementById('t2s1').innerText=state.t2s1;
+                document.getElementById('t2s2').innerText=state.t2s2; document.getElementById('t2s3').innerText=state.t2s3;
 
-            // Handle item visibilities
-            domVis('header-row', state.v_h); domVis('tournament-logo', state.v_tl); domVis('dropline-row', state.v_d);
-            domVis('t1-l', state.v_t1l); domVis('t2-l', state.v_t2l);
-            
-            domVis('t1-m', state.v_m); domVis('t2-m', state.v_m);
-            domVis('t1-s1', state.v_s1); domVis('t2-s1', state.v_s1);
-            domVis('t1-s2', state.v_s2); domVis('t2-s2', state.v_s2);
-            domVis('t1-s3', state.v_s3); domVis('t2-s3', state.v_s3);
+                document.getElementById('h-row').classList.toggle('hidden', !state.vh);
+                document.getElementById('t-logo').classList.toggle('hidden', !state.vt);
+                document.getElementById('d-row').classList.toggle('hidden', !state.vd);
+                document.getElementById('t1l').classList.toggle('hidden', !state.v1);
+                document.getElementById('t2l').classList.toggle('hidden', !state.v2);
+                
+                document.getElementById('t1m').classList.toggle('hidden', !state.bm); document.getElementById('t2m').classList.toggle('hidden', !state.bm);
+                document.getElementById('t1s1').classList.toggle('hidden', !state.bs1); document.getElementById('t2s1').classList.toggle('hidden', !state.bs1);
+                document.getElementById('t1s2').classList.toggle('hidden', !state.bs2); document.getElementById('t2s2').classList.toggle('hidden', !state.bs2);
+                document.getElementById('t1s3').classList.toggle('hidden', !state.bs3); document.getElementById('t2s3').classList.toggle('hidden', !state.bs3);
 
-            // Handle asset imagery slots
-            setBg('tournament-logo', state.turl); setBg('t1-l', state.t1lurl); setBg('t2-l', state.t2lurl);
-
-            // Core Global Router Engine
-            if (state.viewMode === 'scorebug') {
-                domVis('prism-overlay', true);
-                domVis('next-match-big-card', false);
-            } else if (state.viewMode === 'bigcard') {
-                domVis('prism-overlay', false);
-                domVis('next-match-big-card', true);
-            } else {
-                domVis('prism-overlay', false);
-                domVis('next-match-big-card', false);
+                document.getElementById('t-logo').style.backgroundImage = state.tu ? `url('${state.tu}')` : 'none';
+                document.getElementById('t1l').style.backgroundImage = state.t1l ? `url('${state.t1l}')` : 'none';
+                document.getElementById('t2l').style.backgroundImage = state.t2l ? `url('${state.t2l}')` : 'none';
+            } else if(state.route === 'nx') {
+                document.getElementById('nx-t1n').innerText = state.nt1n || 'TBD';
+                document.getElementById('nx-t1p').innerText = state.nt1p || 'Players';
+                document.getElementById('nx-t2n').innerText = state.nt2n || 'TBD';
+                document.getElementById('nx-t2p').innerText = state.nt2p || 'Players';
             }
         }
-
-        function domVis(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
-        function setBg(id, url) { document.getElementById(id).style.backgroundImage = url.trim() ? `url('${url}')` : 'none'; }
+        
+        // Listeners for inputs
+        document.getElementById('n-hl').addEventListener('input', syncPrepInputs); document.getElementById('n-hr').addEventListener('input', syncPrepInputs);
+        document.getElementById('n-t1n').addEventListener('input', syncPrepInputs); document.getElementById('n-t1p').addEventListener('input', syncPrepInputs);
+        document.getElementById('n-t2n').addEventListener('input', syncPrepInputs); document.getElementById('n-t2p').addEventListener('input', syncPrepInputs);
     </script>
 </body>
 </html>
