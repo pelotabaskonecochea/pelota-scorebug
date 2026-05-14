@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelota Bug v3</title>
-    <script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
+    <title>Basque Pelota Stream Overlay</title>
+    <script src="ably.com"></script>
     <style>
         :root { --bg1: #111; --bg2: #1a1a1a; --text1: #fff; --text2: #aaa; --accent: #d4af37; --box: #222; }
-        body { font-family: Arial, sans-serif; margin: 0; padding: 10px; background: #2c3e50; color: #fff; }
-        #launch-screen { text-align: center; padding: 50px 10px; }
-        .launch-btn { display: block; width: 260px; margin: 20px auto; padding: 20px; font-size: 18px; font-weight: bold; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; }
-        #prism-overlay { position: absolute; top: 15px; left: 15px; width: 550px; display: flex; flex-direction: column; font-weight: bold; transform-origin: top left; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: transparent; overflow: hidden; color: #fff; }
+        
+        #prism-overlay { position: absolute; top: 20px; left: 20px; width: 550px; display: flex; flex-direction: column; font-weight: bold; transform-origin: top left; transition: transform 0.2s ease; }
         .row { display: flex; align-items: stretch; background: var(--bg1); color: var(--text1); overflow: hidden; }
         #h-row { background: var(--bg2); color: var(--accent); font-size: 13px; text-transform: uppercase; padding: 6px 12px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); }
         #t-logo { width: 45px; background: var(--bg2); border-right: 1px solid rgba(255,255,255,0.1); background-size: contain; background-repeat: no-repeat; background-position: center; }
@@ -24,34 +23,19 @@
         .s-box { width: 42px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--box); border-left: 1px solid rgba(255,255,255,0.1); }
         .m-box { background: var(--bg2); color: var(--accent); border-right: 2px solid var(--accent); }
         #d-row { background: var(--bg2); font-size: 12px; padding: 5px 12px; display: flex; justify-content: space-between; color: var(--text2); border-top: 1px solid rgba(255,255,255,0.1); }
-        #next-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 580px; background: rgba(17,17,17,0.95); border: 3px solid var(--accent); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.7); box-sizing: border-box; }
-        #next-title { font-size: 20px; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .next-team-row { margin: 15px 0; }
-        .next-team-name { font-size: 24px; font-weight: bold; color: #fff; }
-        .next-team-players { font-size: 15px; color: var(--text2); margin-top: 4px; }
-        .vs-divider { font-size: 14px; color: var(--accent); font-weight: bold; margin: 10px 0; }
-        #remote-panel { max-width: 480px; margin: 0 auto; background: #1a252f; padding: 10px; border-radius: 8px; box-sizing: border-box; }
-        .sect { background: #2c3e50; padding: 10px; border-radius: 6px; margin-bottom: 12px; }
-        .f-row { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
-        input[type="text"] { padding: 10px; border-radius: 4px; border: 1px solid #34495e; background: #1a252f; color: white; font-size: 14px; flex-grow: 1; min-width: 100px; box-sizing: border-box; }
-        .btn { background: #e74c3c; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .btn.active { background: #2ecc71; }
-        .g-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 4px; }
-        .b-grp { background: #1a252f; padding: 5px; border-radius: 4px; text-align: center; }
-        .b-grp label { display: block; font-size: 10px; color: #bdc3c7; margin-bottom: 3px; font-weight: bold; }
-        .g-up { width: 100%; height: 55px; font-size: 22px; font-weight: bold; background: #2ecc71; color: white; border: none; border-radius: 4px; }
-        .g-down { width: 100%; height: 32px; font-size: 13px; background: #7f8c8d; color: white; border: none; border-radius: 4px; margin-top: 4px; }
+        
+        #next-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 580px; background: rgba(17,17,17,0.98); border: 3px solid var(--accent); padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); box-sizing: border-box; }
+        #next-title { font-size: 22px; color: var(--accent); text-transform: uppercase; margin-bottom: 25px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .next-team-row { margin: 20px 0; }
+        .next-team-name { font-size: 28px; font-weight: bold; color: #fff; }
+        .next-team-players { font-size: 18px; color: var(--text2); margin-top: 4px; }
+        .vs-divider { font-size: 15px; color: var(--accent); font-weight: bold; margin: 15px 0; letter-spacing: 1px; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="launch-screen">
-        <h2>Basque Pelota Scorebug Launcher</h2>
-        <button class="launch-btn" onclick="gotoMode('overlay')">🎥 Load PRISM Overlay Layer</button>
-        <button class="launch-btn" onclick="gotoMode('remote')">📱 Load Smartphone Remote</button>
-    </div>
-
+    <!-- Scorebug Graphic View -->
     <div id="prism-overlay" class="hidden">
         <div id="h-row" class="row"><span id="hl">FPPBA</span><span id="hr">Fecha 3</span></div>
         <div class="row">
@@ -82,6 +66,7 @@
         <div id="d-row" class="row"><span id="dl">Necochea</span><span id="dr">LIVE</span></div>
     </div>
 
+    <!-- Interstitial Big Screen Next Match Box View -->
     <div id="next-box" class="hidden">
         <div id="next-title">Próximo Partido</div>
         <div class="next-team-row"><div id="nx-t1n" class="next-team-name">-</div><div id="nx-t1p" class="next-team-players">-</div></div>
@@ -89,159 +74,27 @@
         <div class="next-team-row"><div id="nx-t2n" class="next-team-name">-</div><div id="nx-t2p" class="next-team-players">-</div></div>
     </div>
 
-    <div id="remote-panel" class="hidden">
-        <h2>Pelota Cloud Remote</h2>
-        <div class="sect" style="background:#27ae60;">
-            <h3>Display Router (On-Screen Mode)</h3>
-            <div class="f-row">
-                <button class="btn" id="r-sb" onclick="setRouting('sb')">Show Scorebug</button>
-                <button class="btn" id="r-nx" onclick="setRouting('nx')">Show Next Box</button>
-                <button class="btn" id="r-hd" onclick="setRouting('hd')">Hide All</button>
-            </div>
-            <button class="btn" style="background:#d35400; width:100%; margin-top:5px; font-size:13px;" onclick="promotePrepToLive()">PROMOTE PREP BOX TO LIVE (Resets Scores to 0-0)</button>
-        </div>
-        <div class="sect">
-            <h3>Scorebug Configuration</h3>
-            <div class="f-row">
-                <button class="btn" id="cb-h" onclick="togVis('vh')">Header</button>
-                <button class="btn" id="cb-tl" onclick="togVis('vt')">T-Logo</button>
-                <button class="btn" id="cb-d" onclick="togVis('vd')">Dropline</button>
-                <button class="btn" id="cb-m" onclick="togBox('m')">Match</button>
-                <button class="btn" id="cb-s1" onclick="togBox('s1')">S1</button>
-                <button class="btn" id="cb-s2" onclick="togBox('s2')">S2</button>
-                <button class="btn" id="cb-s3" onclick="togBox('s3')">S3</button>
-            </div>
-            <div class="f-row"><input type="text" id="scale" placeholder="Size Scale (e.g. 1.0)" oninput="pScale(this.value)"></div>
-            <div class="f-row"><input type="text" id="i-hl" placeholder="Head L" oninput="pTxt('hl',this.value)"><input type="text" id="i-hr" placeholder="Head R" oninput="pTxt('hr',this.value)"></div>
-            <div class="f-row"><input type="text" id="i-dl" placeholder="Drop L" oninput="pTxt('dl',this.value)"><input type="text" id="i-dr" placeholder="Drop R" oninput="pTxt('dr',this.value)"></div>
-            <div class="f-row"><input type="text" id="i-tu" placeholder="T-Logo URL" oninput="pImg('tu',this.value)"></div>
-        </div>
-        <div class="sect" style="border-left:4px solid #2ecc71;">
-            <h3>Team 1 (Live)</h3>
-            <div class="f-row"><input type="text" id="i-t1n" oninput="pTxt('t1n',this.value)"><input type="text" id="i-t1p" oninput="pTxt('t1p',this.value)"><button class="btn" id="cb-t1l" onclick="togVis('v1')">Logo</button></div>
-            <input type="text" id="i-t1l" placeholder="Logo URL" oninput="pImg('t1l',this.value)" style="width:100%; margin-bottom:5px;">
-            <div class="g-4">
-                <div class="b-grp"><label>MATCH</label><button class="g-up" style="background:#d4af37;" onclick="pPts('t1m',1)">+</button><button class="g-down" onclick="pPts('t1m',-1)">-</button></div>
-                <div class="b-grp"><label>SET 1</label><button class="g-up" onclick="pPts('t1s1',1)">+</button><button class="g-down" onclick="pPts('t1s1',-1)">-</button></div>
-                <div class="b-grp"><label>SET 2</label><button class="g-up" onclick="pPts('t1s2',1)">+</button><button class="g-down" onclick="pPts('t1s2',-1)">-</button></div>
-                <div class="b-grp"><label>SET 3</label><button class="g-up" onclick="pPts('t1s3',1)">+</button><button class="g-down" onclick="pPts('t1s3',-1)">-</button></div>
-            </div>
-        </div>
-        <div class="sect" style="border-left:4px solid #e74c3c;">
-            <h3>Team 2 (Live)</h3>
-            <div class="f-row"><input type="text" id="i-t2n" oninput="pTxt('t2n',this.value)"><input type="text" id="i-t2p" oninput="pTxt('t2p',this.value)"><button class="btn" id="cb-t2l" onclick="togVis('v2')">Logo</button></div>
-            <input type="text" id="i-t2l" placeholder="Logo URL" oninput="pImg('t2l',this.value)" style="width:100%; margin-bottom:5px;">
-            <div class="g-4">
-                <div class="b-grp"><label>MATCH</label><button class="g-up" style="background:#d4af37;" onclick="pPts('t2m',1)">+</button><button class="g-down" onclick="pPts('t2m',-1)">-</button></div>
-                <div class="b-grp"><label>SET 1</label><button class="g-up" onclick="pPts('t2s1',1)">+</button><button class="g-down" onclick="pPts('t2s1',-1)">-</button></div>
-                <div class="b-grp"><label>SET 2</label><button class="g-up" onclick="pPts('t2s2',1)">+</button><button class="g-down" onclick="pPts('t2s2',-1)">-</button></div>
-                <div class="b-grp"><label>SET 3</label><button class="g-up" onclick="pPts('t2s3',1)">+</button><button class="g-down" onclick="pPts('t2s3',-1)">-</button></div>
-            </div>
-        </div>
-        <div class="sect" style="border-left:4px solid #e67e22;">
-            <h3 style="color:#e67e22;">Off-Screen Match Preparation Box</h3>
-            <div class="f-row"><input type="text" id="n-hl" placeholder="Next Head L" oninput="syncPrepInputs()"><input type="text" id="n-hr" placeholder="Next Head R" oninput="syncPrepInputs() columns;"></div>
-            <div class="f-row"><input type="text" id="n-t1n" placeholder="Next T1 Name" oninput="syncPrepInputs()"><input type="text" id="n-t1p" placeholder="Next T1 Players" oninput="syncPrepInputs()"></div>
-            <div class="f-row"><input type="text" id="n-t2n" placeholder="Next T2 Name" oninput="syncPrepInputs()"><input type="text" id="n-t2p" placeholder="Next T2 Players" oninput="syncPrepInputs()"></div>
-        </div>
-    </div>
-
     <script>
         const ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
         const chan = ably.channels.get('p-neco');
-        const params = new URLSearchParams(window.location.search);
-        const mode = params.get('mode') || 'launch';
 
-        let state = {
-            route: 'sb', scale: '1.0', hl:'FPPBA', hr:'Fecha 3', dl:'Necochea', dr:'LIVE', t1n:'Team 1', t1p:'Players 1', t2n:'Team 2', t2p:'Players 2',
-            t1m:0, t1s1:0, t1s2:0, t1s3:0, t2m:0, t2s1:0, t2s2:0, t2s3:0, vh:true, vt:false, vd:true, v1:false, v2:false, bm:true, bs1:true, bs2:true, bs3:true, tu:'', t1l:'', t2l:'',
-            nhl:'FPPBA', nhr:'Proximo', nt1n:'', nt1p:'', nt2n:'', nt2p:''
-        };
-
-        if(mode==='overlay'){
-            document.getElementById('launch-screen').classList.add('hidden');
-            document.getElementById('prism-overlay').classList.remove('hidden');
-            document.body.style.background='transparent';
-            chan.subscribe('u', function(m){ state=m.data; renderGraphic(); });
-        } else if(mode==='remote'){
-            document.getElementById('launch-screen').classList.add('hidden');
-            document.getElementById('remote-panel').classList.remove('hidden');
-            chan.subscribe('u', function(m){ state=m.data; syncForm(); });
-        }
-
-        function gotoMode(m) { window.location.href = window.location.origin + window.location.pathname + '?mode=' + m; }
-        function psh() { chan.publish('u', state); }
-        
-        function setRouting(r) { state.route = r; syncPrepInputs(); psh(); if(mode==='remote') syncForm(); }
-        function pTxt(f,v) { state[f]=v; psh(); }
-        function pImg(f,v) { state[f]=v; state['v'+(f==='tu'?'t':f==='t1l'?'1':'2')]=true; psh(); }
-        function pPts(f,a) { state[f]=Math.max(0, state[f]+a); psh(); }
-        function pScale(v) { state.scale = v || '1.0'; psh(); }
-        function togVis(f) { state[f]=!state[f]; psh(); if(mode==='remote') syncForm(); }
-        function togBox(b) { state['b'+b]=!state['b'+b]; psh(); if(mode==='remote') syncForm(); }
-        
-        function syncPrepInputs() {
-            state.nhl = document.getElementById('n-hl').value; state.nhr = document.getElementById('n-hr').value;
-            state.nt1n = document.getElementById('n-t1n').value; state.nt1p = document.getElementById('n-t1p').value;
-            state.nt2n = document.getElementById('n-t2n').value; state.nt2p = document.getElementById('n-t2p').value;
-        }
-
-        function promotePrepToLive() {
-            syncPrepInputs();
-            state.hl = state.nhl; state.hr = state.nhr;
-            state.t1n = state.nt1n || 'Team 1'; state.t1p = state.nt1p || 'Players 1';
-            state.t2n = state.nt2n || 'Team 2'; state.t2p = state.nt2p || 'Players 2';
-            state.t1m=0; state.t1s1=0; state.t1s2=0; state.t1s3=0;
-            state.t2m=0; state.t2s1=0; state.t2s2=0; state.t2s3=0;
-            state.nhl='FPPBA'; state.nhr='Proximo'; state.nt1n=''; state.nt1p=''; state.nt2n=''; state.nt2p='';
-            state.route = 'sb';
-            psh();
-            if(mode==='remote') syncForm();
-        }
-
-        function syncForm() {
-            document.getElementById('i-hl').value=state.hl; document.getElementById('i-hr').value=state.hr;
-            document.getElementById('i-dl').value=state.dl; document.getElementById('i-dr').value=state.dr;
-            document.getElementById('i-t1n').value=state.t1n; document.getElementById('i-t1p').value=state.t1p;
-            document.getElementById('i-t2n').value=state.t2n; document.getElementById('i-t2p').value=state.t2p;
-            document.getElementById('i-tu').value=state.tu; document.getElementById('i-t1l').value=state.t1l; document.getElementById('i-t2l').value=state.t2l;
-            document.getElementById('scale').value=state.scale;
+        chan.subscribe('u', function(m) {
+            const state = m.data;
             
-            document.getElementById('n-hl').value=state.nhl; document.getElementById('n-hr').value=state.nhr;
-            document.getElementById('n-t1n').value=state.nt1n; document.getElementById('n-t1p').value=state.nt1p;
-            document.getElementById('n-t2n').value=state.nt2n; document.getElementById('n-t2p').value=state.nt2p;
-
-            document.getElementById('r-sb').className = 'btn' + (state.route==='sb'?' active':'');
-            document.getElementById('r-nx').className = 'btn' + (state.route==='nx'?' active':'');
-            document.getElementById('r-hd').className = 'btn' + (state.route==='hd'?' active':'');
-            
-            document.getElementById('cb-h').className = 'btn' + (state.vh?' active':'');
-            document.getElementById('cb-tl').className = 'btn' + (state.vt?' active':'');
-            document.getElementById('cb-d').className = 'btn' + (state.vd?' active':'');
-            document.getElementById('cb-t1l').className = 'btn' + (state.v1?' active':'');
-            document.getElementById('cb-t2l').className = 'btn' + (state.v2?' active':'');
-            document.getElementById('cb-m').className = 'btn' + (state.bm?' active':'');
-            document.getElementById('cb-s1').className = 'btn' + (state.bs1?' active':'');
-            document.getElementById('cb-s2').className = 'btn' + (state.bs2?' active':'');
-            document.getElementById('cb-s3').className = 'btn' + (state.bs3?' active':'');
-        }
-
-        function renderGraphic() {
             document.getElementById('prism-overlay').style.transform = 'scale(' + state.scale + ')';
-            
             document.getElementById('prism-overlay').classList.toggle('hidden', state.route !== 'sb');
             document.getElementById('next-box').classList.toggle('hidden', state.route !== 'nx');
 
             if(state.route === 'sb') {
-                document.getElementById('hl').innerText=state.hl; document.getElementById('hr').innerText=state.hr;
-                document.getElementById('dl').innerText=state.dl; document.getElementById('dr').innerText=state.dr;
-                document.getElementById('t1n').innerText=state.t1n; document.getElementById('t1p').innerText=state.t1p;
-                document.getElementById('t2n').innerText=state.t2n; document.getElementById('t2p').innerText=state.t2p;
+                document.getElementById('hl').innerText = state.hl; document.getElementById('hr').innerText = state.hr;
+                document.getElementById('dl').innerText = state.dl; document.getElementById('dr').innerText = state.dr;
+                document.getElementById('t1n').innerText = state.t1n; document.getElementById('t1p').innerText = state.t1p;
+                document.getElementById('t2n').innerText = state.t2n; document.getElementById('t2p').innerText = state.t2p;
                 
-                document.getElementById('t1m').innerText=state.t1m; document.getElementById('t1s1').innerText=state.t1s1;
-                document.getElementById('t1s2').innerText=state.t1s2; document.getElementById('t1s3').innerText=state.t1s3;
-                document.getElementById('t2m').innerText=state.t2m; document.getElementById('t2s1').innerText=state.t2s1;
-                document.getElementById('t2s2').innerText=state.t2s2; document.getElementById('t2s3').innerText=state.t2s3;
+                document.getElementById('t1m').innerText = state.t1m; document.getElementById('t1s1').innerText = state.t1s1;
+                document.getElementById('t1s2').innerText = state.t1s2; document.getElementById('t1s3').innerText = state.t1s3;
+                document.getElementById('t2m').innerText = state.t2m; document.getElementById('t2s1').innerText = state.t2s1;
+                document.getElementById('t2s2').innerText = state.t2s2; document.getElementById('t2s3').innerText = state.t2s3;
 
                 document.getElementById('h-row').classList.toggle('hidden', !state.vh);
                 document.getElementById('t-logo').classList.toggle('hidden', !state.vt);
@@ -258,12 +111,12 @@
                 document.getElementById('t1l').style.backgroundImage = state.t1l ? "url('" + state.t1l + "')" : 'none';
                 document.getElementById('t2l').style.backgroundImage = state.t2l ? "url('" + state.t2l + "')" : 'none';
             } else if(state.route === 'nx') {
-                document.getElementById('nx-t1n').innerText = state.nt1n || 'TBD';
-                document.getElementById('nx-t1p').innerText = state.nt1p || 'Players';
-                document.getElementById('nx-t2n').innerText = state.nt2n || 'TBD';
-                document.getElementById('nx-t2p').innerText = state.nt2p || 'Players';
+                document.getElementById('nx-t1n').innerText = state.nt1n || 'Por Determinar';
+                document.getElementById('nx-t1p').innerText = state.nt1p || 'Jugadores';
+                document.getElementById('nx-t2n').innerText = state.nt2n || 'Por Determinar';
+                document.getElementById('nx-t2p').innerText = state.nt2p || 'Jugadores';
             }
-        }
+        });
     </script>
 </body>
 </html>
