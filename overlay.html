@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overlay Layer</title>
-    <script src="https://cdn.ably.com/lib/ably.min.js"></script>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         :root { --bg1: #111; --bg2: #1a1a1a; --text1: #fff; --text2: #aaa; --accent: #d4af37; --box: #222; }
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: transparent; overflow: hidden; color: #fff; }
@@ -70,6 +70,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('auth') !== '7630'){window.location.href='index.html';}
+
         const ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
         const chan = ably.channels.get('p-neco');
         
@@ -113,12 +114,54 @@
         }
         
         // Default state
-        const defaultState = { route:'sb',scale:'1.0',hl:'FPPBA',hr:'Fecha 3',dl:'Necochea',dr:'LIVE',t1n:'Team 1',t1p:'Players 1',t2n:'Team 2',t2p:'Players 2',t1s1:0,t1s2:0,t1s3:0,t2s1:0,t2s2:0,t2s3:0,vh:true,vt:false,vd:true,v1:false,v2:false,bs1:false,bs2:false,bs3:false,tu:'',t1l:'',t2l:'' };
-        updateOverlay(defaultState);
+        //const defaultState = { route:'sb',scale:'1.0',hl:'FPPBA',hr:'Fecha 3',dl:'Necochea',dr:'LIVE',t1n:'Team 1',t1p:'Players 1',t2n:'Team 2',t2p:'Players 2',t1s1:0,t1s2:0,t1s3:0,t2s1:0,t2s2:0,t2s3:0,vh:true,vt:false,vd:true,v1:false,v2:false,bs1:false,bs2:false,bs3:false,tu:'',t1l:'',t2l:'' };
+        //updateOverlay(defaultState);
         
-        chan.subscribe('u', function(m) {
-            updateOverlay(m.data);
+        //chan.subscribe('u', function(m) {
+        //    updateOverlay(m.data);
+        //});
+
+        // Default state definition
+        const defaultState = { 
+            route:'sb', scale:'1.0', hl:'FPPBA', hr:'Fecha 3', dl:'Necochea', dr:'LIVE', 
+            t1n:'Team 1', t1p:'Players 1', t2n:'Team 2', t2p:'Players 2', 
+            t1s1:0, t1s2:0, t1s3:0, t2s1:0, t2s2:0, t2s3:0, 
+            vh:true, vt:false, vd:true, v1:false, v2:false, 
+            bs1:false, bs2:false, bs3:false, tu:'', t1l:'', t2l:'' 
+        };
+
+        // WAIT FOR THE BROWSER TO BE READY BEFORE RUNNING ANYTHING
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. Initialize the overlay with default graphics safely
+            try {
+                updateOverlay(defaultState);
+                console.log("Overlay initialized with default state successfully.");
+            } catch(err) {
+                console.error("Initialization error (check your HTML IDs):", err);
+            }
+            
+            // 2. Subscribe to Ably ONLY after the page is fully ready
+            /*chan.subscribe('u', function(m) {
+                console.log("Incoming Real-time State Payload:", m.data);
+                try {
+                    updateOverlay(m.data);
+                } catch(err) {
+                    console.error("Error applying real-time data to HTML:", err);
+                }
+            });*/
+
+            // 5. Explicitly wait for Ably to connect before registering the subscription
+            ably.connection.on('connected', function() {
+                console.log("Ably connected successfully. Subscribing to channel...");
+                
+                chan.subscribe('u', function(m) {
+                    updateOverlay(m.data);
+                });
+            });
+
         });
+
     </script>
 </body>
 </html>

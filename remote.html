@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
     <title>Remote</title>
-    <script src="https://cdn.ably.com/lib/ably.min.js"></script>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         body{font-family:Arial;margin:0;padding:6px;background:#1a252f;color:#fff;box-sizing:border-box}
         .sect{background:#2c3e50;padding:8px;border-radius:6px;margin-bottom:8px}
@@ -179,8 +179,10 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.get('auth') !== '7630'){document.body.innerHTML='<h1>Denied</h1>';window.location.href='index.html';}
+       
         const ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
         const chan = ably.channels.get('p-neco');
+
         let state = { route:'sb',scale:'1.0',hl:'FPPBA',hr:'Fecha 3',dl:'Necochea',dr:'LIVE',t1n:'Team 1',t1p:'Players 1',t2n:'Team 2',t2p:'Players 2',t1s1:0,t1s2:0,t1s3:0,t2s1:0,t2s2:0,t2s3:0,vh:true,vt:false,vd:true,v1:false,v2:false,bs1:false,bs2:false,bs3:false,tu:'',t1l:'',t2l:'',nhl:'FPPBA',nhr:'Fecha 3',nt1n:'',nt1p:'',nt2n:'',nt2p:'' };
         
         chan.subscribe('u', function(m) { 
@@ -192,6 +194,7 @@
         psh(); // Publish initial state
         
         function psh() { chan.publish('u', state); }
+
         function setR(r) { state.route = r; sPr(); psh(); }
         function pTx(f,v) { state[f]=v; psh(); }
         function pIm(f,v) { state[f]=v; state['v'+(f==='tu'?'t':f==='t1l'?'1':'2')]=true; psh(); }
@@ -338,6 +341,21 @@
             state.nt2p = document.getElementById('n-t2p').value || state.nt2p;
             psh(); upd();
         }
+        
+        // 5. Fire connection events only after DOM is ready and functions are mapped
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            ably.connection.on('connected', function() {
+                console.log("Remote controller connected to Ably.");
+                
+                // Now it is completely safe to receive data because upd() and setR are ready
+                chan.subscribe('u', function(m) { 
+                    state = m.data; 
+                    upd(); 
+                });
+            });
+            
+        });
     </script>
 </body>
 </html>
