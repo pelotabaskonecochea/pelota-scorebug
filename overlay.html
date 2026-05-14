@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basque Pelota Stream Overlay</title>
+    <title>Overlay Layer</title>
     <script src="ably.com"></script>
     <style>
         :root { --bg1: #111; --bg2: #1a1a1a; --text1: #fff; --text2: #aaa; --accent: #d4af37; --box: #222; }
@@ -29,13 +29,9 @@
         .next-team-players { font-size: 18px; color: var(--text2); margin-top: 4px; }
         .vs-divider { font-size: 15px; color: var(--accent); font-weight: bold; margin: 15px 0; letter-spacing: 1px; }
         .hidden { display: none !important; }
-        #auth-fail { background: #2c3e50; position: fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; }
     </style>
 </head>
 <body>
-
-    <div id="auth-fail">⚠️ Access Unauthorized</div>
-
     <div id="prism-overlay" class="hidden">
         <div id="h-row" class="row"><span id="hl">FPPBA</span><span id="hr">Fecha 3</span></div>
         <div class="row">
@@ -74,52 +70,41 @@
     </div>
 
     <script>
-        var params = new URLSearchParams(window.location.search);
-        if(params.get('auth') === "7630") {
-            document.getElementById('auth-fail').style.display = "none";
-            
-            var ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
-            var chan = ably.channels.get('p-neco');
-
-            chan.subscribe('u', function(m) {
-                var state = m.data;
-                document.getElementById('prism-overlay').style.transform = 'scale(' + state.scale + ')';
-                document.getElementById('prism-overlay').classList.toggle('hidden', state.route !== 'sb');
-                document.getElementById('next-box').classList.toggle('hidden', state.route !== 'nx');
-
-                if(state.route === 'sb') {
-                    document.getElementById('hl').innerText = state.hl; document.getElementById('hr').innerText = state.hr;
-                    document.getElementById('dl').innerText = state.dl; document.getElementById('dr').innerText = state.dr;
-                    document.getElementById('t1n').innerText = state.t1n; document.getElementById('t1p').innerText = state.t1p;
-                    document.getElementById('t2n').innerText = state.t2n; document.getElementById('t2p').innerText = state.t2p;
-                    
-                    document.getElementById('t1m').innerText = state.t1m; document.getElementById('t1s1').innerText = state.t1s1;
-                    document.getElementById('t1s2').innerText = state.t1s2; document.getElementById('t1s3').innerText = state.t1s3;
-                    document.getElementById('t2m').innerText = state.t2m; document.getElementById('t2s1').innerText = state.t2s1;
-                    document.getElementById('t2s2').innerText = state.t2s2; document.getElementById('t2s3').innerText = state.t2s3;
-
-                    document.getElementById('h-row').classList.toggle('hidden', !state.vh);
-                    document.getElementById('t-logo').classList.toggle('hidden', !state.vt);
-                    document.getElementById('d-row').classList.toggle('hidden', !state.vd);
-                    document.getElementById('t1l').classList.toggle('hidden', !state.v1);
-                    document.getElementById('t2l').classList.toggle('hidden', !state.v2);
-                    
-                    document.getElementById('t1m').classList.toggle('hidden', !state.bm); document.getElementById('t2m').classList.toggle('hidden', !state.bm);
-                    document.getElementById('t1s1').classList.toggle('hidden', !state.bs1); document.getElementById('t2s1').classList.toggle('hidden', !state.bs1);
-                    document.getElementById('t1s2').classList.toggle('hidden', !state.bs2); document.getElementById('t2s2').classList.toggle('hidden', !state.bs2);
-                    document.getElementById('t1s3').classList.toggle('hidden', !state.bs3); document.getElementById('t2s3').classList.toggle('hidden', !state.bs3);
-
-                    document.getElementById('t-logo').style.backgroundImage = state.tu ? "url('" + state.tu + "')" : 'none';
-                    document.getElementById('t1l').style.backgroundImage = state.t1l ? "url('" + state.t1l + "')" : 'none';
-                    document.getElementById('t2l').style.backgroundImage = state.t2l ? "url('" + state.t2l + "')" : 'none';
-                } else if(state.route === 'nx') {
-                    document.getElementById('nx-t1n').innerText = state.nt1n || 'Por Determinar';
-                    document.getElementById('nx-t1p').innerText = state.nt1p || 'Jugadores';
-                    document.getElementById('nx-t2n').innerText = state.nt2n || 'Por Determinar';
-                    document.getElementById('nx-t2p').innerText = state.nt2p || 'Jugadores';
-                }
-            });
-        }
+        const ably = new Ably.Realtime('0iWGhA.HcMh0A:p5vD047w2LVWlpn6Ur53ylhokarBgo9wOmEq8EiaLrY');
+        const chan = ably.channels.get('p-neco');
+        chan.subscribe('u', function(m) {
+            const s = m.data;
+            document.getElementById('prism-overlay').style.transform = 'scale(' + s.scale + ')';
+            document.getElementById('prism-overlay').classList.toggle('hidden', s.route !== 'sb');
+            document.getElementById('next-box').classList.toggle('hidden', s.route !== 'nx');
+            if(s.route === 'sb') {
+                document.getElementById('hl').innerText = s.hl; document.getElementById('hr').innerText = s.hr;
+                document.getElementById('dl').innerText = s.dl; document.getElementById('dr').innerText = s.dr;
+                document.getElementById('t1n').innerText = s.t1n; document.getElementById('t1p').innerText = s.t1p;
+                document.getElementById('t2n').innerText = s.t2n; document.getElementById('t2p').innerText = s.t2p;
+                document.getElementById('t1m').innerText = s.t1m; document.getElementById('t1s1').innerText = s.t1s1;
+                document.getElementById('t1s2').innerText = s.t1s2; document.getElementById('t1s3').innerText = s.t1s3;
+                document.getElementById('t2m').innerText = s.t2m; document.getElementById('t2s1').innerText = s.t2s1;
+                document.getElementById('t2s2').innerText = s.t2s2; document.getElementById('t2s3').innerText = s.t2s3;
+                document.getElementById('h-row').classList.toggle('hidden', !s.vh);
+                document.getElementById('t-logo').classList.toggle('hidden', !s.vt);
+                document.getElementById('d-row').classList.toggle('hidden', !s.vd);
+                document.getElementById('t1l').classList.toggle('hidden', !s.v1);
+                document.getElementById('t2l').classList.toggle('hidden', !s.v2);
+                document.getElementById('t1m').classList.toggle('hidden', !s.bm); document.getElementById('t2m').classList.toggle('hidden', !s.bm);
+                document.getElementById('t1s1').classList.toggle('hidden', !s.bs1); document.getElementById('t2s1').classList.toggle('hidden', !s.bs1);
+                document.getElementById('t1s2').classList.toggle('hidden', !s.bs2); document.getElementById('t2s2').classList.toggle('hidden', !s.bs2);
+                document.getElementById('t1s3').classList.toggle('hidden', !s.bs3); document.getElementById('t2s3').classList.toggle('hidden', !s.bs3);
+                document.getElementById('t-logo').style.backgroundImage = s.tu ? "url('" + s.tu + "')" : 'none';
+                document.getElementById('t1l').style.backgroundImage = s.t1l ? "url('" + s.t1l + "')" : 'none';
+                document.getElementById('t2l').style.backgroundImage = s.t2l ? "url('" + s.t2l + "')" : 'none';
+            } else if(s.route === 'nx') {
+                document.getElementById('nx-t1n').innerText = s.nt1n || 'Por Determinar';
+                document.getElementById('nx-t1p').innerText = s.nt1p || 'Jugadores';
+                document.getElementById('nx-t2n').innerText = s.nt2n || 'Por Determinar';
+                document.getElementById('nx-t2p').innerText = s.nt2p || 'Jugadores';
+            }
+        });
     </script>
 </body>
 </html>
