@@ -180,8 +180,8 @@
         overflow: hidden;
         transform-origin: top left;
         display: inline-block;
-        max-width: 100%;
-        width: 560px;
+        max-width: 580px;
+        width: 100%;
       }
 
       :root {
@@ -195,15 +195,13 @@
 
       .preview-overlay {
         position: relative;
-        width: 560px;
-        max-width: 100%;
-        min-width: 250px;
+        width: fit-content;
         background: transparent;
         margin: 0;
         padding: 0;
-        font-weight: bold;
         display: inline-flex;
         flex-direction: column;
+        font-weight: bold;
       }
 
       .p-row {
@@ -216,7 +214,7 @@
 
       .p-h-row {
         background: var(--bg2);
-        color: var(--accent);
+        color: var(--text2);
         font-size: 9px;
         text-transform: uppercase;
         padding: 4px 8px;
@@ -226,17 +224,16 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      .p-t-logo {
-        width: auto;
-        min-width: 32px;
-        flex: none;
-        align-self: stretch;
-        aspect-ratio: 1 / 1;
+      .p-t-logo {  
+        height: 100%;         /* Takes full height of the parent */
+        width: 64px;          /* Automatically calculates dynamic width based on the image's shape */
+        min-width: 60px;      /* Ensures it never gets smaller than 60px */
+        flex: none;           /* Prevents flexbox from squeezing the image */
+        align-self: stretch;  /* Stretches to match parent container height */
+        
+        object-fit: contain;  /* Scale image smoothly without cropping or distorting */
         background: var(--bg2);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
       }
 
       .p-t-container {
@@ -291,8 +288,8 @@
       }
 
       .p-s-box {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -304,8 +301,8 @@
 
       .p-m-box {
         background: var(--bg2);
-        color: var(--accent);
-        border-right: 2px solid var(--accent);
+        color: var(--text2);
+        border-right: 2px solid var(--text2);
       }
 
       .p-d-row {
@@ -333,20 +330,21 @@
 
       .preview-next-box {
         position: relative;
-        width: 560px;
-        max-width: 100%;
+        width: 90%;
+        max-width: 580px;
         background: rgba(17, 17, 17, 0.98);
-        border: 2px solid var(--accent);
+        border: 2px solid var(--text2);
         padding: 15px;
         border-radius: 8px;
         text-align: center;
         box-sizing: border-box;
         display: none;
+        margin: 0 auto;
       }
 
       .p-next-title {
         font-size: 14px;
-        color: var(--accent);
+        color: var(--text2);
         text-transform: uppercase;
         margin-bottom: 12px;
         letter-spacing: 1px;
@@ -354,26 +352,38 @@
         padding-bottom: 8px;
       }
 
-      .p-next-meta-row,
+      .p-next-meta-row {
+        display: flex;
+        justify-content: flex-start;
+        gap: 4px;
+        align-items: center;
+        margin-bottom: 0px;
+        font-size: 12px;
+        color: var(--text2);
+        min-height: 1.2em;
+      }
       .p-dropline-row {
         display: flex;
         justify-content: space-between;
         gap: 4px;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 0px;
         font-size: 12px;
         color: var(--text2);
         min-height: 1.2em;
       }
       .p-next-meta-row span,
       .p-dropline-row span {
-        flex: 1 1 0;
+        flex: none;
         min-width: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: left;
       }
-      .p-next-meta-row span:last-child,
+      .p-next-meta-row span:last-child {
+        text-align: left;
+      }
       .p-dropline-row span:last-child {
         text-align: right;
       }
@@ -381,23 +391,25 @@
       .p-next-section-label {
         display: block;
         font-size: 10px;
-        color: var(--accent);
+        color: var(--text2);
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-bottom: 8px;
       }
       .p-result-row {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
+        gap: 10px;
         color: #fff;
         font-size: 12px;
         margin-bottom: 6px;
       }
       .p-result-team-name {
         font-weight: bold;
-        flex: 1;
-        text-align: left;
+        flex: none;
+        min-width: 0;
+        text-align: center;
       }
       .p-result-scores {
         display: inline-flex;
@@ -433,7 +445,7 @@
         margin-bottom: 12px;
       }
       .p-next-match-vs {
-        color: var(--accent);
+        color: var(--text2);
         text-transform: uppercase;
         font-size: 11px;
         letter-spacing: 1px;
@@ -456,7 +468,7 @@
 
       .p-vs-divider {
         font-size: 10px;
-        color: var(--accent);
+        color: var(--text2);
         font-weight: bold;
         margin: 8px 0;
         letter-spacing: 1px;
@@ -481,24 +493,24 @@
       >
         <div id="preview-scorebug" class="preview-overlay">
           <div class="p-h-row p-row">
-            <span id="p-hl">Header 1</span>
-            <span id="p-hr">Header 2</span>
+            <span id="p-hl">Encabezado 1</span>
+            <span id="p-hr">Encabezado 2</span>
           </div>
           <div class="p-row" style="flex: 1">
-            <div id="p-t-logo" class="p-t-logo p-hidden"></div>
+            <img id="p-t-logo" alt="logo" class="p-t-logo p-hidden"></img>
             <div class="p-t-container">
               <div class="p-t-wrap">
                 <div id="p-t1l" class="p-t-img p-hidden"></div>
                 <div class="p-t-txt">
-                  <span id="p-t1n" class="p-t-name">Team 1</span
-                  ><span id="p-t1p" class="p-t-play">Players 1</span>
+                  <span id="p-t1n" class="p-t-name">Equipo 1</span
+                  ><span id="p-t1p" class="p-t-play">Jugadores 1</span>
                 </div>
               </div>
               <div class="p-t-wrap">
                 <div id="p-t2l" class="p-t-img p-hidden"></div>
                 <div class="p-t-txt">
-                  <span id="p-t2n" class="p-t-name">Team 2</span
-                  ><span id="p-t2p" class="p-t-play">Players 2</span>
+                  <span id="p-t2n" class="p-t-name">Equipo 2</span
+                  ><span id="p-t2p" class="p-t-play">Jugadores 2</span>
                 </div>
               </div>
             </div>
@@ -516,18 +528,17 @@
             </div>
           </div>
           <div class="p-d-row p-row">
-            <span id="p-dl">Dropline 1</span>
-            <span id="p-dr">Dropline 2</span>
+            <span id="p-dl">Pie de línea 1</span>
+            <span id="p-dr">Pie de línea 2</span>
           </div>
         </div>
         <div id="preview-nextbox" class="preview-next-box">
           <div class="p-next-meta-row">
-            <span id="p-nx-nhl">Header left</span>
-            <span id="p-nx-nhr">Header right</span>
+            <span id="p-nx-nhl">Encabezado 1</span>
           </div>
-          <div class="p-resultado-label">Resultado</div>
+          <div id="p-nx-resultado-label" class="p-resultado-label">Resultado</div>
           <div class="p-result-row">
-            <span id="p-nx-result-t1" class="p-result-team-name">Team 1</span>
+            <span id="p-nx-result-t1" class="p-result-team-name">Equipo 1</span>
             <span class="p-result-scores">
               <span id="p-nx-result-t1s1">0</span>
               <span id="p-nx-result-t1s2">0</span>
@@ -535,7 +546,7 @@
             </span>
           </div>
           <div class="p-result-row">
-            <span id="p-nx-result-t2" class="p-result-team-name">Team 2</span>
+            <span id="p-nx-result-t2" class="p-result-team-name">Equipo 2</span>
             <span class="p-result-scores">
               <span id="p-nx-result-t2s1">0</span>
               <span id="p-nx-result-t2s2">0</span>
@@ -543,15 +554,15 @@
             </span>
           </div>
           <div class="p-next-separator"></div>
-          <div class="p-next-section-label">Próximo Partido</div>
+          <div id="p-nx-next-section-label" class="p-next-section-label">Próximo Partido</div>
           <div class="p-next-match-row">
             <span id="p-nx-t1n">-</span>
             <span class="p-next-match-vs">vs</span>
             <span id="p-nx-t2n">-</span>
           </div>
           <div class="p-dropline-row">
-            <span id="p-nx-ndl">Dropline left</span>
-            <span id="p-nx-ndr">Dropline right</span>
+            <span id="p-nx-ndl">Pie de línea 1</span>
+            <span id="p-nx-ndr">Pie de línea 2</span>
           </div>
         </div>
       </div>
@@ -565,7 +576,7 @@
         <button class="btn" id="r-hd" onclick="setR('hd')">Hide All</button>
       </div>
       <button class="p-btn" onclick="prom()">
-        💥 Promote Prep to Live (Resets 0-0)
+        💥 Comenzar próximo partido (Devuelve 0-0)
       </button>
     </div>
 
@@ -807,12 +818,14 @@
 
       const ABLY_KEY =
         urlParams.get("ablyKey") ||
-        "0iWGhA.FW3w1g:EMD5WZ2N_sE9rzhKdMJ9im2thlS0IJ5cAcf-WhAlTAw?rewind=1";
+        "0iWGhA.FW3w1g:EMD5WZ2N_sE9rzhKdMJ9im2thlS0IJ5cAcf-WhAlTAw";
       const ably = new Ably.Realtime({
         key: ABLY_KEY,
         clientId: "remote-" + Math.random().toString(36).slice(2),
       });
-      const chan = ably.channels.get("p-neco");
+      const chan = ably.channels.get("p-neco", {
+        params: { rewind: "1" }
+      });
       let state = { ...DEFAULT_STATE };
 
       function psh() {
@@ -888,7 +901,6 @@
           "p-t1p",
           "p-t2p",
           "p-nx-nhl",
-          "p-nx-nhr",
           "p-nx-result-t1",
           "p-nx-result-t2",
           "p-nx-t1n",
@@ -983,7 +995,12 @@
           sbPreview.style.display = "none";
           nxPreview.style.display = "block";
           document.getElementById("p-nx-nhl").innerText = state.nhl;
-          document.getElementById("p-nx-nhr").innerText = state.nhr;
+          document.getElementById("p-nx-resultado-label").innerText = state.hr
+            ? "Resultado - " + state.hr
+            : "Resultado";
+          document.getElementById("p-nx-next-section-label").innerText = state.nhr
+            ? "Próximo Partido - " + state.nhr
+            : "Próximo Partido";
           document.getElementById("p-nx-result-t1").innerText = state.t1n;
           document.getElementById("p-nx-result-t1s1").innerText = state.t1s1;
           document.getElementById("p-nx-result-t1s2").innerText = state.t1s2;
@@ -996,6 +1013,12 @@
           document.getElementById("p-nx-t2n").innerText = state.nt2n;
           document.getElementById("p-nx-ndl").innerText = state.ndl;
           document.getElementById("p-nx-ndr").innerText = state.ndr;
+          document.getElementById("p-nx-result-t1s1").classList.toggle("p-hidden", !state.bs1);
+          document.getElementById("p-nx-result-t2s1").classList.toggle("p-hidden", !state.bs1);
+          document.getElementById("p-nx-result-t1s2").classList.toggle("p-hidden", !state.bs2);
+          document.getElementById("p-nx-result-t2s2").classList.toggle("p-hidden", !state.bs2);
+          document.getElementById("p-nx-result-t1s3").classList.toggle("p-hidden", !state.bs3);
+          document.getElementById("p-nx-result-t2s3").classList.toggle("p-hidden", !state.bs3);
         } else {
           sbPreview.style.display = "block";
           nxPreview.style.display = "none";
@@ -1051,9 +1074,15 @@
         document
           .getElementById("p-t2s3")
           .classList.toggle("p-hidden", !state.bs3);
-        document.getElementById("p-t-logo").style.backgroundImage = state.tu
-          ? "url('" + state.tu + "')"
-          : "none";
+        //document.getElementById("p-t-logo").style.backgroundImage = state.tu
+        //  ? "url('" + state.tu + "')"
+        //  : "url('./images/LogoCBpelotarisNuevo.jpeg')";
+        const logoElement = document.getElementById("p-t-logo");
+        if(logoElement) {
+            logoElement.src = (state.tu && state.tu.trim())
+                ? state.tu
+                : "./images/LogoCBpelotarisNuevo.jpeg"; 
+        }
         document.getElementById("p-t1l").style.backgroundImage = state.t1l
           ? "url('" + state.t1l + "')"
           : "none";

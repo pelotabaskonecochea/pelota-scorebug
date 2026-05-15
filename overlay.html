@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Overlay Layer</title>
+    <title>Tanteador de Pelota</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <script src="default-state.js"></script>
     <style>
@@ -28,6 +28,7 @@
         top: 20px;
         left: 20px;
         width: auto;
+        min-width: 250px;
         display: flex;
         flex-direction: column;
         font-weight: bold;
@@ -43,7 +44,7 @@
       }
       #h-row {
         background: var(--bg2);
-        color: var(--accent);
+        color: var(--text2);
         font-size: 13px;
         text-transform: uppercase;
         padding: 6px 12px;
@@ -52,17 +53,16 @@
         gap: 30px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
-      #t-logo {
-        width: auto;
-        min-width: 60px;
-        flex: none;
-        align-self: stretch;
-        aspect-ratio: 1 / 1;
+      #t-logo {  
+        height: 100%;         /* Takes full height of the parent */
+        width: 100px;          /* Automatically calculates dynamic width based on the image's shape */
+        min-width: 60px;      /* Ensures it never gets smaller than 60px */
+        flex: none;           /* Prevents flexbox from squeezing the image */
+        align-self: stretch;  /* Stretches to match parent container height */
+        
+        object-fit: contain;  /* Scale image smoothly without cropping or distorting */
         background: var(--bg2);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
       }
       .t-container {
         flex-grow: 1;
@@ -107,8 +107,8 @@
         display: flex;
       }
       .s-box {
-        width: 42px;
-        height: 42px;
+        width: 45px;
+        height: 45px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -118,8 +118,8 @@
       }
       .m-box {
         background: var(--bg2);
-        color: var(--accent);
-        border-right: 2px solid var(--accent);
+        color: var(--text2);
+        border-right: 2px solid var(--text2);
       }
       #d-row {
         background: var(--bg2);
@@ -139,7 +139,7 @@
         width: 90%;
         max-width: 580px;
         background: rgba(17, 17, 17, 0.98);
-        border: 3px solid var(--accent);
+        border: 3px solid var(--text2);
         padding: 30px;
         border-radius: 12px;
         text-align: center;
@@ -148,14 +148,23 @@
       }
       #next-title {
         font-size: 22px;
-        color: var(--accent);
+        color: var(--text2);
         text-transform: uppercase;
         margin-bottom: 25px;
         letter-spacing: 2px;
         border-bottom: 1px solid #333;
         padding-bottom: 10px;
       }
-      .next-meta-row,
+      .next-meta-row {
+        display: flex;
+        justify-content: flex-start;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 16px;
+        font-size: 14px;
+        color: var(--text2);
+        min-height: 1.3em;
+      }
       .dropline-row {
         display: flex;
         justify-content: space-between;
@@ -168,13 +177,16 @@
       }
       .next-meta-row span,
       .dropline-row span {
-        flex: 1 1 0;
+        flex: none;
         min-width: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: left;
       }
-      .next-meta-row span:last-child,
+      .next-meta-row span:last-child {
+        text-align: left;
+      }
       .dropline-row span:last-child {
         text-align: right;
       }
@@ -182,29 +194,30 @@
       .next-section-label {
         display: block;
         font-size: 12px;
-        color: var(--accent);
+        color: var(--text2);
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-bottom: 10px;
       }
       .result-row {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
+        gap: 16px;
         font-size: 14px;
         color: #fff;
         margin-bottom: 8px;
       }
       .result-team-name {
         font-weight: bold;
-        flex: 1;
-        text-align: left;
+        flex: none;
+        min-width: 0;
+        text-align: center;
       }
       .result-scores {
         display: inline-flex;
         gap: 8px;
-        justify-content: flex-end;
-        min-width: 130px;
+        justify-content: center;
       }
       .result-scores span {
         min-width: 24px;
@@ -235,7 +248,7 @@
         margin-bottom: 18px;
       }
       .next-match-vs {
-        color: var(--accent);
+        color: var(--text2);
         font-size: 14px;
         text-transform: uppercase;
         letter-spacing: 1px;
@@ -248,23 +261,24 @@
   <body>
     <div id="prism-overlay" class="hidden">
       <div id="h-row" class="row">
-        <span id="hl">FPPBA</span><span id="hr">Fecha 3</span>
+        <span id="hl">Encabezado 1</span>
+        <span id="hr">Encabezado 2</span>
       </div>
       <div class="row">
-        <div id="t-logo" class="hidden"></div>
+        <img id="t-logo" alt="logo" class="hidden"></img>
         <div class="t-container">
           <div class="t-wrap">
             <div id="t1l" class="t-img hidden"></div>
             <div class="t-txt">
-              <span id="t1n" class="t-name">Team 1</span
-              ><span id="t1p" class="t-play">Players 1</span>
+              <span id="t1n" class="t-name">Equipo 1</span
+              ><span id="t1p" class="t-play">Jugadores 1</span>
             </div>
           </div>
           <div class="t-wrap">
             <div id="t2l" class="t-img hidden"></div>
             <div class="t-txt">
-              <span id="t2n" class="t-name">Team 2</span
-              ><span id="t2p" class="t-play">Players 2</span>
+              <span id="t2n" class="t-name">Equipo 2</span
+              ><span id="t2p" class="t-play">Jugadores 2</span>
             </div>
           </div>
         </div>
@@ -282,18 +296,18 @@
         </div>
       </div>
       <div id="d-row" class="row">
-        <span id="dl">Necochea</span><span id="dr">LIVE</span>
+        <span id="dl">Pie de línea 1</span>
+        <span id="dr">Pie de línea 2</span>
       </div>
     </div>
 
     <div id="next-box" class="hidden">
       <div class="next-meta-row">
-        <span id="nx-nhl">Header left</span>
-        <span id="nx-nhr">Header right</span>
+        <span id="nx-nhl">Encabezado 1</span>
       </div>
-      <div class="resultado-label">Resultado</div>
+      <div id="nx-resultado-label" class="resultado-label">Resultado</div>
       <div class="result-row">
-        <span id="nx-result-t1" class="result-team-name">Team 1</span>
+        <span id="nx-result-t1" class="result-team-name">Equipo 1</span>
         <span class="result-scores">
           <span id="nx-result-t1s1">0</span>
           <span id="nx-result-t1s2">0</span>
@@ -301,7 +315,7 @@
         </span>
       </div>
       <div class="result-row">
-        <span id="nx-result-t2" class="result-team-name">Team 2</span>
+        <span id="nx-result-t2" class="result-team-name">Equipo 2</span>
         <span class="result-scores">
           <span id="nx-result-t2s1">0</span>
           <span id="nx-result-t2s2">0</span>
@@ -309,15 +323,15 @@
         </span>
       </div>
       <div class="next-separator"></div>
-      <div class="next-section-label">Próximo Partido</div>
+      <div id="nx-next-section-label" class="next-section-label">Próximo Partido</div>
       <div class="next-match-row">
         <span id="nx-t1n">Next Team 1</span>
         <span class="next-match-vs">vs</span>
         <span id="nx-t2n">Next Team 2</span>
       </div>
       <div class="dropline-row">
-        <span id="nx-ndl">Drop left</span>
-        <span id="nx-ndr">Drop right</span>
+        <span id="nx-ndl">Pie de línea 1</span>
+        <span id="nx-ndr">Pie de línea 2</span>
       </div>
     </div>
 
@@ -329,12 +343,14 @@
 
       const ABLY_KEY =
         urlParams.get("ablyKey") ||
-        "0iWGhA.FW3w1g:EMD5WZ2N_sE9rzhKdMJ9im2thlS0IJ5cAcf-WhAlTAw?rewind=1";
+        "0iWGhA.FW3w1g:EMD5WZ2N_sE9rzhKdMJ9im2thlS0IJ5cAcf-WhAlTAw";
       const ably = new Ably.Realtime({
         key: ABLY_KEY,
         clientId: "overlay-" + Math.random().toString(36).slice(2),
       });
-      const chan = ably.channels.get("p-neco");
+      const chan = ably.channels.get("p-neco", {
+        params: { rewind: "1" }
+      });
 
       function updateOverlay(s) {
         // 1. Fallback to 1.0 if scale is undefined, and assign it directly
@@ -375,9 +391,12 @@
           document.getElementById("t2s2").classList.toggle("hidden", !s.bs2);
           document.getElementById("t1s3").classList.toggle("hidden", !s.bs3);
           document.getElementById("t2s3").classList.toggle("hidden", !s.bs3);
-          document.getElementById("t-logo").style.backgroundImage = s.tu
-            ? "url('" + s.tu + "')"
-            : "none";
+          //document.getElementById("t-logo").style.backgroundImage = s.tu
+          //  ? "url('" + s.tu + "')"
+          //  : "url('./images/LogoCBpelotarisNuevo.jpeg')";
+          document.getElementById("t-logo").src = (s.tu && s.tu.trim())
+            ? s.tu
+            : "./images/LogoCBpelotarisNuevo.jpeg"; 
           document.getElementById("t1l").style.backgroundImage = s.t1l
             ? "url('" + s.t1l + "')"
             : "none";
@@ -386,7 +405,12 @@
             : "none";
         } else if (s.route === "nx") {
           document.getElementById("nx-nhl").innerText = s.nhl;
-          document.getElementById("nx-nhr").innerText = s.nhr;
+          document.getElementById("nx-resultado-label").innerText = s.hr
+            ? "Resultado - " + s.hr
+            : "Resultado";
+          document.getElementById("nx-next-section-label").innerText = s.nhr
+            ? "Próximo Partido - " + s.nhr
+            : "Próximo Partido";
           document.getElementById("nx-result-t1").innerText = s.t1n;
           document.getElementById("nx-result-t1s1").innerText = s.t1s1;
           document.getElementById("nx-result-t1s2").innerText = s.t1s2;
@@ -395,6 +419,12 @@
           document.getElementById("nx-result-t2s1").innerText = s.t2s1;
           document.getElementById("nx-result-t2s2").innerText = s.t2s2;
           document.getElementById("nx-result-t2s3").innerText = s.t2s3;
+          document.getElementById("nx-result-t1s1").classList.toggle("hidden", !s.bs1);
+          document.getElementById("nx-result-t2s1").classList.toggle("hidden", !s.bs1);
+          document.getElementById("nx-result-t1s2").classList.toggle("hidden", !s.bs2);
+          document.getElementById("nx-result-t2s2").classList.toggle("hidden", !s.bs2);
+          document.getElementById("nx-result-t1s3").classList.toggle("hidden", !s.bs3);
+          document.getElementById("nx-result-t2s3").classList.toggle("hidden", !s.bs3);
           document.getElementById("nx-t1n").innerText = s.nt1n;
           document.getElementById("nx-t2n").innerText = s.nt2n;
           document.getElementById("nx-ndl").innerText = s.ndl;
