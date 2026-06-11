@@ -289,7 +289,9 @@
             <iframe id="overlayFrame"
                     title="Vista previa del overlay"
                     src="overlay.html?preview=1&auth=7630"
-                    aria-hidden="false"></iframe>
+                    aria-hidden="false"
+                    allowTransparency="true"
+                    style="background: transparent;"></iframe>
         </div>
 
         <div class="sect">
@@ -553,14 +555,7 @@
 
             // Publish to ably
             function psh() {
-                // preview-only: guarda en localStorage y actualiza UI (no publica)
-                //chan.publish("u", state);
-                try {
-                    localStorage.setItem('pelota-scorebug-state', JSON.stringify(state));
-                } catch (e) {
-                    console.warn('Unable to save preview state:', e);
-                }
-                // notificar iframe de preview sin cambiar su src
+                // preview-only: notificar únicamente al iframe de preview y actualizar UI local
                 const iframe = document.getElementById('overlayFrame');
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({ type: 'preview', state }, '*');
@@ -756,19 +751,19 @@
                 //T-Logo
                 const url = document.getElementById("i-tu").value;
                 state.tu = url;
-                state.vt = !!url;
+                // no tocar el flag de visibilidad del logo del evento al aplicar contenido
                 //Match - Team1
                 state.t1n = document.getElementById("i-t1n").value;
                 state.t1p = document.getElementById("i-t1p").value;
                 const logoUrl1 = document.getElementById("i-t1l").value;
                 state.t1l = logoUrl1;
-                state.v1 = !!logoUrl1;
+                // no tocar el flag de visibilidad de logo al actualizar el contenido
                 //Match - Team2
                 state.t2n = document.getElementById("i-t2n").value;
                 state.t2p = document.getElementById("i-t2p").value;
                 const logoUrl2 = document.getElementById("i-t2l").value;
                 state.t2l = logoUrl2;
-                state.v2 = !!logoUrl2;
+                // no tocar el flag de visibilidad de logo al actualizar el contenido
                 psh();
                 upd();
             }
