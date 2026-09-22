@@ -551,7 +551,11 @@
             const chan = ably.channels.get("p-neco", {
                 params: { rewind: "1" }
             });
-            let state = { ...DEFAULT_STATE };
+            function mergeRemoteState(remoteState) {
+                return { ...DEFAULT_STATE, ...(remoteState || {}) };
+            }
+
+            let state = mergeRemoteState();
 
             // Publish to ably
             function psh() {
@@ -740,14 +744,6 @@
                 state.hr = document.getElementById("i-hr").value;
                 state.dl = document.getElementById("i-dl").value;
                 state.dr = document.getElementById("i-dr").value;
-                state.nhl = state.hl;
-                state.nhr = state.hr;
-                state.ndl = state.dl;
-                state.ndr = state.dr;
-                document.getElementById("n-hl").value = state.nhl;
-                document.getElementById("n-hr").value = state.nhr;
-                document.getElementById("n-dl").value = state.ndl;
-                document.getElementById("n-dr").value = state.ndr;
                 //T-Logo
                 const url = document.getElementById("i-tu").value;
                 state.tu = url;
@@ -786,7 +782,7 @@
                 const savedState = localStorage.getItem("pelota-scorebug-state");
                 if (savedState) {
                 try {
-                    state = JSON.parse(savedState);
+                    state = mergeRemoteState(JSON.parse(savedState));
                     console.log("Remote loaded saved local state.");
                 } catch (err) {
                     console.warn("Unable to parse saved state:", err);
@@ -801,7 +797,7 @@
                     "Ably status: connected";
 
                 chan.subscribe("u", function (m) {
-                    state = m.data;
+                    state = mergeRemoteState(m.data);
                     upd();
                 });
                 });

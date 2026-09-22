@@ -150,7 +150,8 @@
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 580px;
-            background: rgba(17, 17, 17, 0.98);
+            background: transparent !important;
+            background-color: transparent !important;
             border: 3px solid var(--text2);
             padding: 30px;
             border-radius: 12px;
@@ -383,6 +384,8 @@
         });
 
         function updateOverlay(s) {
+            s = { ...OVERLAY_DEFAULT_STATE, ...(s || {}) };
+
             // 1. Fallback to 1.0 if scale is undefined, and assign it directly
             const scaleFactor = s.scale || "1.0";
             const overlayEl = document.getElementById("prism-overlay");
